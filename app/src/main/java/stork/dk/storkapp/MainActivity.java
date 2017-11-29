@@ -1,5 +1,8 @@
 package stork.dk.storkapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -17,9 +20,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.Button;
 import android.widget.TextView;
 
+/**
+ * @author mathiasjensen
+ */
 public class MainActivity extends AppCompatActivity {
+    private static final String APP_SHARED_PREFS = "login_preference";
+    SharedPreferences sharedPrefs;
+    SharedPreferences.Editor editor;
+    private int userId;
+    private boolean loggedIn;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -39,6 +51,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sharedPrefs = getApplicationContext().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        loggedIn = sharedPrefs.getBoolean("loggedInState",false);
+        userId = sharedPrefs.getInt("currentUser",0);
+
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -56,17 +73,34 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                logOut();
+                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
 
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onResume() {
+        checkIfLoggedIn();
+        super.onResume();
+    }
+
+    @Override
+    public void onRestart() {
+        checkIfLoggedIn();
+        super.onRestart();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,6 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            loggedIn = false;
+
             return true;
         }
 
@@ -147,5 +183,37 @@ public class MainActivity extends AppCompatActivity {
             // Show 3 total pages.
             return 3;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+        super.onBackPressed();
+    }
+
+    public void checkIfLoggedIn(){
+        sharedPrefs = getApplicationContext().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        loggedIn = sharedPrefs.getBoolean("loggedInState", false);
+        if(!loggedIn) {
+            Intent intent = new Intent(this, Login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    public void logOut(){
+        sharedPrefs = getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        loggedIn = sharedPrefs.getBoolean("loggedInState", false);
+
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putBoolean("loggedInState", false);
+        editor.apply();
+
+        System.out.println("Logged out");
+        onResume();
     }
 }
