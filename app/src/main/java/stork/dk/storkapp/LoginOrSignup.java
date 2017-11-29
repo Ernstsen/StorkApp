@@ -123,42 +123,4 @@ public class LoginOrSignup extends AppCompatActivity {
             return 2;
         }
     }
-
-
-    public void login(){
-        //TODO:Create real login
-        if(!clicked) {
-            clicked = true;
-            System.out.println("Logged in");
-            sharedPreferences = getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-            loggedIn = sharedPreferences.getBoolean("loggedInState", false);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("loggedInState", true);
-            editor.putInt("currentUser", userId);
-            editor.apply();
-
-            //TODO: Should only show toast if login is successful
-            Toast.makeText(LoginOrSignup.this,"Logged in!",
-                    Toast.LENGTH_LONG).show();
-
-            Intent loginSuccess = new Intent(this, MainActivity.class);
-            loginSuccess.putExtra("fromLoginPage", "loggedIn");
-            startActivity(loginSuccess);
-            finish();
-        }
-    }
-
-    public void activateLoginButton(){
-        //Test Login Button
-        //TODO: Create real login button and text fields
-        Button loginButton = (Button) findViewById(R.id.login_button);
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                login();
-                System.out.println("LOGGING IN!!!");
-            }
-        });
-
-    }
 }
