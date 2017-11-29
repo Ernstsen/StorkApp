@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author mathiasjensen
@@ -79,7 +80,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 logOut();
-                //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                //TODO:Create a toast with feedback
+                //Snackbar.make(view, "Logging out", Snackbar.LENGTH_LONG).setAction("Action", null).show();
             }
         });
 
@@ -213,7 +215,10 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("loggedInState", false);
         editor.apply();
 
-        System.out.println("Logged out");
+
+        Toast.makeText(MainActivity.this,"Logged out!",
+                Toast.LENGTH_LONG).show();
+
         onResume();
     }
 }

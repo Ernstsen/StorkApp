@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 /**
  * @author mathiasjensen
@@ -59,6 +60,10 @@ public class Login extends AppCompatActivity {
             editor.putBoolean("loggedInState", true);
             editor.putInt("currentUser", userId);
             editor.apply();
+
+            //TODO: Should only show toast if login is successful
+            Toast.makeText(Login.this,"Logged in!",
+                    Toast.LENGTH_LONG).show();
 
             Intent loginSuccess = new Intent(this, MainActivity.class);
             loginSuccess.putExtra("fromLoginPage", "loggedIn");
