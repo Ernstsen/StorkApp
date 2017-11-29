@@ -3,7 +3,12 @@
     <string name="tab_text_1">Map</string>
     <string name="tab_text_2">Friends</string>
     <string name="tab_text_3">Group</string>
+
+    <string name="login_tab">Login</string>
+    <string name="register_tab">Sign Up</string>
+
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
     <string name="login_title">Login</string>
+    <string name="title_activity_login_or_signup">LoginOrSignup</string>
 </resources>

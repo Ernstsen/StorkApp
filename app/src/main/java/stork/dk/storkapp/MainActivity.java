@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         sharedPrefs = getApplicationContext().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
         loggedIn = sharedPrefs.getBoolean("loggedInState", false);
         if(!loggedIn) {
-            Intent intent = new Intent(this, Login.class);
+            Intent intent = new Intent(this, LoginOrSignup.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
             finish();
