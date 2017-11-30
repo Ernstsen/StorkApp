@@ -68,7 +68,8 @@ Logs the user out
 #### Example response:
 ```json
 {
-  "success": true
+  "success": true,
+  "userId": 1
 }
 ``` 
 
