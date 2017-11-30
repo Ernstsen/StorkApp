@@ -15,7 +15,7 @@ Android application for the dIntDes Stork project
  
  | key    |            value            |
  |:------:| :---------------------------|
- | Type   | PSOT                        |
+ | Type   | POST                        |
  | Path   | /loginRequest               |
  | Params | None                        |
  | Body   | Json object LoginRequest    |
@@ -104,7 +104,8 @@ Registers new user
   "name": "Johannes Ernstsen",
   "password": "password1",
   "mail": "ernstsen.johannes@gmail.com",
-  "userId": 1
+  "userId": 1,
+  "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638"
 }
 ``` 
 
@@ -125,7 +126,7 @@ Updates the users location on the server
 ```json
 {
   "userId": 1,
-  "sessionId": "sess",
+  "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638",
   "location": {
     "longtitude": 1.0,
     "lattitude": 2.0,
@@ -141,14 +142,14 @@ Gets the user information from the server
  |:------:| :------------------------------------- |
  | Type   | GET                                    |
  | Path   | /getUser                               |
- | Params | sessionId                              |
+ | Params | sessionId, userId                      |
  | Resp   | Json object UserObject                 |
  | Code   | 200/404/500/                           |
  
  #### Example Response:
 ```json
 {
-  "id": 1,
+  "userId": 1,
   "name": "Johannes Ernstsen",
   "mail": "Ernstsen.johannes@gmail.com",
   "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638"
@@ -164,7 +165,7 @@ Gets locations for all friends/group members
  |:------:| :------------------------------------- |
  | Type   | GET                                    |
  | Path   | /getLocations                          |
- | Params | sessionId                              |
+ | Params | sessionId, userId                      |
  | Resp   | Json object LocationsResponse          |
  | Code   | 200/404/500/                           |
  
