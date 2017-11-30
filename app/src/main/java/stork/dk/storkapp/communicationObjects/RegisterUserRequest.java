@@ -11,16 +11,18 @@ public class RegisterUserRequest implements Serializable {
     private String password;
     private String mail;
     private int userId;
+    private String sessionId;
 
     public RegisterUserRequest() {
     }
 
-    public RegisterUserRequest(boolean success, String name, String password, String mail, int userId) {
+    public RegisterUserRequest(boolean success, String name, String password, String mail, int userId, String sessionId) {
         this.success = success;
         this.name = name;
         this.password = password;
         this.mail = mail;
         this.userId = userId;
+        this.sessionId = sessionId;
     }
 
     public boolean isSuccess() {
@@ -61,5 +63,13 @@ public class RegisterUserRequest implements Serializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 }
