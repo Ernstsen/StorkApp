@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/StorkApp.iml" filepath="$PROJECT_DIR$/StorkApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DA4_g06_Stork.iml" filepath="$PROJECT_DIR$/DA4_g06_Stork.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
