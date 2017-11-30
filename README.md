@@ -15,7 +15,7 @@ Android application for the dIntDes Stork project
  
  | key    |            value            |
  |:------:| :---------------------------|
- | Type   | PUT                         |
+ | Type   | PSOT                        |
  | Path   | /loginRequest               |
  | Params | None                        |
  | Body   | Json object LoginRequest    |
@@ -48,7 +48,7 @@ Logs the user out
  
  | key    |            value            |
  |:------:| :-------------------------- |
- | Type   | PUT                         |
+ | Type   | POST                        |
  | Path   | /logout                     |
  | Params | None                        |
  | Body   | Json object LogoutRequest   |
@@ -79,7 +79,7 @@ Registers new user
  
  | key    |              value              |
  |:------:| :------------------------------ |
- | Type   | PUT                             |
+ | Type   | POST                            |
  | Path   | /register                       |
  | Params | None                            |
  | Body   | Json object RegisterUserRequest |
@@ -113,7 +113,7 @@ Updates the users location on the server
  
  | key    |               value               |
  |:------:| :-------------------------------- |
- | Type   | PUT                               |
+ | Type   | POST                              |
  | Path   | /updateLocation                   |
  | Params | None                              |
  | Body   | Json object UpdateLocationRequest |
