@@ -1,9 +1,14 @@
 package stork.dk.storkapp;
 
-import android.content.Context;
-import android.net.Uri;
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +19,9 @@ import android.widget.Spinner;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -27,34 +29,36 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Morten Erfurt Hansen
  */
-public class MapOverviewFragment extends Fragment {
+public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRequestPermissionsResultCallback {
     private View rootView;
     private Spinner findFriendsSpinner;
     private MapView mapView;
     private GoogleMap googleMap;
 
     private void populateFriendsSpinner(List<Marker> markers) {
-        List<String> markerNames =  new ArrayList<String>();
+        List<String> spinnerItems = new ArrayList<String>();
+
+        spinnerItems.add("Show all");
 
         for (Marker marker : markers) {
-            markerNames.add(marker.getTitle());
+            spinnerItems.add(marker.getTitle());
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(
-                getActivity(), android.R.layout.simple_spinner_item, markerNames);
+                getActivity(), android.R.layout.simple_spinner_item, spinnerItems);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         findFriendsSpinner.setAdapter(adapter);
     }
 
     private List<Marker> populateMarkerList() {
-        googleMap.clear();
-
         LatLng sydney = new LatLng(-34, 151);
         Marker marker1 = googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker 1").snippet("Marker Description 1"));
 
@@ -83,47 +87,20 @@ public class MapOverviewFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_map_overview, container, false);
         findFriendsSpinner = (Spinner) rootView.findViewById(R.id.findFriendsSpinner);
 
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
-        mapView.onResume(); // needed to get the map to display immediately
+        //mapView.onResume(); // needed to get the map to display immediately
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        mapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap map) {
-                googleMap = map;
-
-                // For showing a move to my location button
-                // TODO: Add permission handling
-                //googleMap.setMyLocationEnabled(true);
-
-                final List<Marker> markers = populateMarkerList();
-
-                populateFriendsSpinner(markers);
-
-                zoomMap(markers, 50);
-
-//                findFriendsSpinner.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                        // Only handles a single friend
-//                        // Needs to add support for group
-//                        //zoomMap(Collections.singletonList(markers.get(position)), 0);
-//                    }
-//                });
-
-            }
-        });
 
         return rootView;
     }
@@ -132,6 +109,15 @@ public class MapOverviewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
+
+        if (checkLocationPermission()) {
+            if (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+
+                startMap();
+            }
+        }
     }
 
     @Override
@@ -150,5 +136,115 @@ public class MapOverviewFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    /**
+     * Starts the map
+     *
+     * precondition: anywhere this method is called, enabled location permissions should be verified
+     */
+    private void startMap() {
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap = map;
+
+                googleMap.setMyLocationEnabled(true);
+
+                googleMap.clear();
+
+                final List<Marker> markers = populateMarkerList();
+
+                populateFriendsSpinner(markers);
+
+                findFriendsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        // TODO: Add support for groups
+                        if (position > 0) zoomMap(Collections.singletonList(markers.get(position - 1)), 0);
+                        else zoomMap(markers, 50);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+            }
+        });
+    }
+
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
+    public boolean checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(getActivity())
+                        .setTitle(R.string.title_location_permission)
+                        .setMessage(R.string.text_location_permission)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(getActivity(),
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(getActivity(),
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        startMap();
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                }
+                return;
+            }
+
+        }
     }
 }

@@ -14,4 +14,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="title_location_permission">Location permissions</string>
+    <string name="text_location_permission">To use this app\'s full potential; permissions to track you\'re location must be enabled. You will be prompted for this after clicking "OK" below.</string>
 </resources>
