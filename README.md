@@ -27,7 +27,6 @@ Android application for the dIntDes Stork project
 #### Example body:
 ```json
 {
-  "success": false,
   "mail": "ernstsen.johannes@gmail.com",
   "password": "kodeord1"
 }
@@ -35,7 +34,6 @@ Android application for the dIntDes Stork project
 #### Example response:
 ```json
 {
-  "success": true,
   "mail": "ernstsen.johannes@gmail.com",
   "password": "kodeord1",
   "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638",

@@ -89,21 +89,16 @@ public class LoginFragment extends Fragment {
                     LoginRequest resp = new Gson().fromJson(new String(responseBody), LoginRequest.class);
                     FragmentActivity activity = getActivity();
 
-                    boolean success = resp.isSuccess();
                     SharedPreferences sharedPreferences = activity.getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.putBoolean(Constants.LOGGED_IN_KEY, success);
-                    if (success) {
-                        editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
-                        Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(activity, "Login failed. Check mail and password", Toast.LENGTH_LONG).show();
-                    }
-                    editor.apply();
+                    editor.putBoolean(Constants.LOGGED_IN_KEY, true);
+                    editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
+                    Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
                     Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
                     loginSuccess.putExtra("fromLoginPage", "loggedIn");
                     startActivity(loginSuccess);
                     getActivity().finish();
+                    editor.apply();
                     clicked = false;
                 }
 
