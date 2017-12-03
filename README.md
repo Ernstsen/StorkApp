@@ -27,7 +27,6 @@ Android application for the dIntDes Stork project
 #### Example body:
 ```json
 {
-  "success": false,
   "mail": "ernstsen.johannes@gmail.com",
   "password": "kodeord1"
 }
@@ -35,7 +34,6 @@ Android application for the dIntDes Stork project
 #### Example response:
 ```json
 {
-  "success": true,
   "mail": "ernstsen.johannes@gmail.com",
   "password": "kodeord1",
   "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638",
@@ -185,7 +183,7 @@ Gets the user information from the server
  
  
 ### Get Locations
-Gets locations for all friends/group members
+Gets locations for all group members
 
  | key    |                  value                 |
  |:------:| :------------------------------------- |
@@ -210,5 +208,67 @@ Gets locations for all friends/group members
        "timeStamp": 1512050488140
      }
    }
+ }
+ ``` 
+ 
+### Get Friends
+Gets friends for supplied user
+
+ | key    |                  value                 |
+ |:------:| :------------------------------------- |
+ | Type   | GET                                    |
+ | Path   | /getFriends                            |
+ | Params | sessionId, userId                      |
+ | Resp   | Json object UsersResponse              |
+ | Code   | 200/404/500/                           |
+ 
+  #### Example Response:
+ ```json
+ {
+   "locations": {
+     "Søby": {
+       "longtitude": 3.8,
+       "lattitude": 4.5,
+       "timeStamp": 1512050488140
+     },
+     "Morten": {
+       "longtitude": 1.7,
+       "lattitude": 2.3,
+       "timeStamp": 1512050488140
+     }
+   }
+ }
+ ```  
+### Get Users
+Get all users name and email for use in searches
+
+ | key    |                  value                 |
+ |:------:| :------------------------------------- |
+ | Type   | GET                                    |
+ | Path   | /getUsers                              |
+ | Params |                                        |
+ | Resp   | Json object UsersResponse              |
+ | Code   | 200/404/500/                           |
+ 
+  #### Example Response:
+ ```json
+ {
+     "users": [
+         {
+             "userId": 1,
+             "name": "Johannes",
+             "mail": "Ernstsen.johannes@gmail.com"
+         },
+         {
+             "userId": 2,
+             "name": "Morten",
+             "mail": "mortens.email.som.jeg.ikke.kan@gmail.com"
+         },
+         {
+             "userId": 3,
+             "name": "Mathias",
+             "mail": "Mathias.mail.som.jeg.heller.ikke.lige.kan@gmail.com"
+         }
+     ]
  }
  ``` 

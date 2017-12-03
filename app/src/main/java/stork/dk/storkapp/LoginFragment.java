@@ -4,16 +4,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.ResponseHandlerInterface;
+
+import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
+import stork.dk.storkapp.communicationObjects.Constants;
+import stork.dk.storkapp.communicationObjects.LoginRequest;
 
 /**
  * Created by mathiasjensen on 29/11/17.
+ *
+ * @author Mathias, Johannes
  */
 
 public class LoginFragment extends Fragment {
@@ -21,8 +34,6 @@ public class LoginFragment extends Fragment {
     private boolean clicked;
 
     private static final String APP_SHARED_PREFS = "login_preference";
-    private SharedPreferences sharedPreferences;
-    private int userId;
 
     public LoginFragment() {
     }
@@ -46,34 +57,75 @@ public class LoginFragment extends Fragment {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                login();
+                login(rootView);
             }
         });
 
         return rootView;
     }
 
-    public void login(){
+    public void login(View v) {
         //TODO:Create real login
-        if(!clicked) {
+        if (!clicked) {
             clicked = true;
-            System.out.println("Logged in");
+            LoginRequest req = new LoginRequest();
+            EditText mailField = (EditText) v.findViewById(R.id.email);
+            if (mailField == null || mailField.getText().toString().equals("")) {
+                Toast.makeText(getActivity(), "No email supplied", Toast.LENGTH_LONG).show();
+                return;
+            }
+            req.setMail(mailField.getText().toString());
+            EditText passwordField = v.findViewById(R.id.password);
+            if (passwordField == null || passwordField.getText().toString().equals("")) {
+                Toast.makeText(getActivity(), "No password supplied", Toast.LENGTH_LONG).show();
+                return;
+            }
+            req.setPassword(passwordField.getText().toString());
 
-            sharedPreferences = this.getActivity().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-            boolean loggedIn = sharedPreferences.getBoolean("loggedInState", false);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("loggedInState", true);
-            editor.putInt("currentUser", userId);
-            editor.apply();
+            CommunicationsHandler.login(getActivity(), req, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+                    LoginRequest resp = new Gson().fromJson(new String(responseBody), LoginRequest.class);
+                    FragmentActivity activity = getActivity();
+
+                    SharedPreferences sharedPreferences = activity.getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putBoolean(Constants.LOGGED_IN_KEY, true);
+                    editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
+                    Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
+                    Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
+                    loginSuccess.putExtra("fromLoginPage", "loggedIn");
+                    startActivity(loginSuccess);
+                    getActivity().finish();
+                    editor.apply();
+                    clicked = false;
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    if (statusCode == 404) {
+                        Toast.makeText(getActivity(), "No match for provided email and password", Toast.LENGTH_LONG).show();
+                    }
+                    clicked = false;
+                }
+            });
+
+//            SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+//            boolean loggedIn = sharedPreferences.getBoolean(Constants.LOGGED_IN_KEY, false);
+//            SharedPreferences.Editor editor = sharedPreferences.edit();
+//            editor.putBoolean(Constants.LOGGED_IN_KEY, true);
+//            editor.putInt("currentUser", userId);
+//            editor.apply();
 
             //TODO: Should only show toast if login is successful
-            Toast.makeText(getActivity(),"Logged in!",
-                    Toast.LENGTH_LONG).show();
-
-            Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
-            loginSuccess.putExtra("fromLoginPage", "loggedIn");
-            startActivity(loginSuccess);
-            getActivity().finish();
+//            Toast.makeText(getActivity(), "Logged in!",
+//                    Toast.LENGTH_LONG).show();
+//
+//            Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
+//            loginSuccess.putExtra("fromLoginPage", "loggedIn");
+//            startActivity(loginSuccess);
+//            getActivity().finish();
         }
     }
 }

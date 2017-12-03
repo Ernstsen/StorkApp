@@ -21,6 +21,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+/**
+ * @author Mathias, Johannes
+ */
 public class LoginOrSignup extends AppCompatActivity {
 
     private static final String APP_SHARED_PREFS = "login_preference";
@@ -69,7 +72,7 @@ public class LoginOrSignup extends AppCompatActivity {
 
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
     }
 
@@ -111,9 +114,12 @@ public class LoginOrSignup extends AppCompatActivity {
             switch (position) {
                 // getItem is called to instantiate the fragment for the given page.
                 // Return a PlaceholderFragment (defined as a static inner class below).
-                case 0: return LoginFragment.login(position + 1);
-                case 1: return RegisterFragment.register(position + 1);
-                default: return LoginFragment.login(position);
+                case 0:
+                    return LoginFragment.login(position + 1);
+                case 1:
+                    return RegisterFragment.register(position + 1);
+                default:
+                    return LoginFragment.login(position);
             }
         }
 

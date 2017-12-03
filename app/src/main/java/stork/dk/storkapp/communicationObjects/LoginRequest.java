@@ -5,29 +5,20 @@ import java.io.Serializable;
 /**
  * @author Johannes on 30-11-2017.
  */
-
 public class LoginRequest implements Serializable {
-    private boolean success;
     private String sessionId;
     private String mail;
     private String password;
+    private int userId;
 
     public LoginRequest() {
     }
 
-    public LoginRequest(boolean success, String sessionId, String mail, String password) {
-        this.success = success;
+    public LoginRequest(String sessionId, String mail, String password, int userId) {
         this.sessionId = sessionId;
         this.mail = mail;
         this.password = password;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
+        this.userId = userId;
     }
 
     public String getSessionId() {
@@ -54,4 +45,11 @@ public class LoginRequest implements Serializable {
         this.password = password;
     }
 
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 }
