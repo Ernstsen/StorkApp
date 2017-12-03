@@ -25,4 +25,5 @@
     <string name="login_email_address_hint">Email address</string>
     <string name="remember_me">Remember me</string>
     <string name="login_button_text">Login</string>
+    <string name="log_out">Log Out</string>
 </resources>

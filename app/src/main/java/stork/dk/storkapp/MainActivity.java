@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,7 +27,6 @@ import stork.dk.storkapp.communicationObjects.Constants;
 public class MainActivity extends AppCompatActivity {
     private static final String APP_SHARED_PREFS = "login_preference";
     SharedPreferences sharedPrefs;
-    SharedPreferences.Editor editor;
     private int userId;
     private boolean loggedIn;
 
@@ -72,16 +70,6 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                logOut();
-                //TODO:Create a toast with feedback
-                //Snackbar.make(view, "Logging out", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            }
-        });
     }
 
     @Override
@@ -117,9 +105,10 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            loggedIn = false;
-
             return true;
+        }
+        if (id == R.id.action_logout){
+            logOut();
         }
 
         return super.onOptionsItemSelected(item);
