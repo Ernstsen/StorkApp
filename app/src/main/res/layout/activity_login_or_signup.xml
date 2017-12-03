@@ -25,15 +25,16 @@
 
             <android.support.design.widget.TabItem
                 android:id="@+id/login_tab"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/login_tab" />
 
             <android.support.design.widget.TabItem
                 android:id="@+id/register_tab"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/register_tab" />
+                android:text="@string/register_tab"
+                android:drawableStart="@drawable/create_user"/>
 
         </android.support.design.widget.TabLayout>
     </android.support.design.widget.AppBarLayout>

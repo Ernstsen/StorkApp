@@ -14,14 +14,14 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
 import cz.msebera.android.httpclient.Header;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.LoginRequest;
+
+import static stork.dk.storkapp.R.style.Theme_AppCompat_Dialog_Alert;
 
 /**
  * @author Mathias, Johannes
@@ -65,6 +65,8 @@ public class LoginFragment extends Fragment {
         //TODO:Create real login
         if (!clicked) {
             clicked = true;
+
+
             LoginRequest req = new LoginRequest();
             EditText mailField = (EditText) v.findViewById(R.id.email);
             if (mailField == null || mailField.getText().toString().equals("")) {
@@ -97,6 +99,7 @@ public class LoginFragment extends Fragment {
                     getActivity().finish();
                     editor.apply();
                     clicked = false;
+
                 }
 
                 @Override

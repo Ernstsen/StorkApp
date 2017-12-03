@@ -1,11 +1,18 @@
 <!-- @author Mathias, Johannes-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content">
+
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     tools:context="stork.dk.storkapp.LoginOrSignup$PlaceholderFragment">
+
 
     <EditText
         android:id="@+id/name"
@@ -20,7 +27,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.18"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2"
+        android:drawableLeft="@drawable/name_icon"
+        android:drawablePadding="5dp"/>
 
 
     <EditText
@@ -32,7 +41,9 @@
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="@id/name"
         app:layout_constraintStart_toStartOf="@id/name"
-        app:layout_constraintTop_toBottomOf="@id/name" />
+        app:layout_constraintTop_toBottomOf="@id/name"
+        android:drawableLeft="@drawable/mail_icon"
+        android:drawablePadding="5dp"/>
 
     <EditText
         android:id="@+id/password"
@@ -43,7 +54,9 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="@id/name"
         app:layout_constraintStart_toStartOf="@id/name"
-        app:layout_constraintTop_toBottomOf="@id/email" />
+        app:layout_constraintTop_toBottomOf="@id/email"
+        android:drawableLeft="@drawable/key_icon"
+        android:drawablePadding="5dp"/>
 
     <EditText
         android:id="@+id/password2"
@@ -54,7 +67,9 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="@id/name"
         app:layout_constraintStart_toStartOf="@id/name"
-        app:layout_constraintTop_toBottomOf="@id/password" />
+        app:layout_constraintTop_toBottomOf="@id/password"
+        android:drawableLeft="@drawable/key_icon"
+        android:drawablePadding="5dp"/>
 
     <Button
         android:id="@+id/register_button"
@@ -76,11 +91,14 @@
         android:layout_marginEnd="25dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:contentDescription="TODO"
         android:src="@drawable/ic_logo_placeholder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.503"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="TODO" />
+
+
 
 </android.support.constraint.ConstraintLayout>
+</ScrollView>

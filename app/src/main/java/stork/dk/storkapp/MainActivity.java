@@ -23,7 +23,7 @@ import android.widget.Toast;
 import stork.dk.storkapp.communicationObjects.Constants;
 
 /**
- * @author mathiasjensen, Johannes
+ * @author Mathias, Johannes
  */
 public class MainActivity extends AppCompatActivity {
     private static final String APP_SHARED_PREFS = "login_preference";

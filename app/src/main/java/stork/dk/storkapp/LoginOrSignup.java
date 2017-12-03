@@ -31,6 +31,8 @@ public class LoginOrSignup extends AppCompatActivity {
     private boolean loggedIn;
     private int userId;
 
+    //TODO: Fix vertical view buttons for the top menu on login screen
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
