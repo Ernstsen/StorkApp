@@ -88,7 +88,6 @@ Registers new user
 #### Example body:
 ```json
 {
-  "success": false,
   "name": "Johannes Ernstsen",
   "password": "password1",
   "mail": "ernstsen.johannes@gmail.com"
@@ -98,7 +97,6 @@ Registers new user
 #### Example response:
 ```json
 {
-  "success": true,
   "name": "Johannes Ernstsen",
   "password": "password1",
   "mail": "ernstsen.johannes@gmail.com",
