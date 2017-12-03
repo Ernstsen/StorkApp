@@ -135,6 +135,32 @@ Updates the users location on the server
 }
 ``` 
 
+### Change Friend
+Adds or removes a friend
+ 
+ | key    |               value               |
+ |:------:| :-------------------------------- |
+ | Type   | POST                              |
+ | Path   | /friend                           |
+ | Params | None                              |
+ | Body   | Json object FriendChangeRequest   |
+ | Resp   | None                              |
+ | Code   | 201/404/500/                      |
+ 
+ 
+#### Example body:
+```json
+{
+  "action": "ADD",
+  "userId": 1,
+  "sessionId": "e7d35d2d-9521-4aa9-a6c5-dc4b08aaf638",
+  "friends": [
+    2,
+    3
+  ]
+}
+``` 
+
 ### Get User
 Gets the user information from the server
  
