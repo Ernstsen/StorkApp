@@ -7,33 +7,33 @@ import java.io.Serializable;
  */
 
 public class Location implements Serializable {
-    private double longtitude;
-    private double lattitude;
+    private double longitude;
+    private double latitude;
     private long timeStamp;
 
     public Location() {
     }
 
-    public Location(double longtitude, double lattitude, long timeStamp) {
-        this.longtitude = longtitude;
-        this.lattitude = lattitude;
+    public Location(double latitude, double longitude, long timeStamp) {
+        this.longitude = longitude;
+        this.latitude = latitude;
         this.timeStamp = timeStamp;
     }
 
-    public double getLongtitude() {
-        return longtitude;
+    public double getLongitude() {
+        return longitude;
     }
 
-    public void setLongtitude(double longtitude) {
-        this.longtitude = longtitude;
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
-    public double getLattitude() {
-        return lattitude;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public void setLattitude(double lattitude) {
-        this.lattitude = lattitude;
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
     }
 
     public long getTimeStamp() {

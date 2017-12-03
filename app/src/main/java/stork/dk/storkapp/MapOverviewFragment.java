@@ -5,10 +5,16 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +22,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,10 +37,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import stork.dk.storkapp.friends.Friend;
+import stork.dk.storkapp.friends.Group;
+import stork.dk.storkapp.friends.Traceable;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 /**
  * @author Morten Erfurt Hansen
@@ -40,43 +58,100 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
     private View rootView;
     private Spinner findFriendsSpinner;
     private MapView mapView;
+
     private GoogleMap googleMap;
 
-    private void populateFriendsSpinner(List<Marker> markers) {
-        List<String> spinnerItems = new ArrayList<String>();
+    private Criteria criteria;
+    private LocationManager locationManager;
+    private String provider;
 
-        spinnerItems.add("Show all");
+    private List<Group> groups;
+    private List<Friend> friends;
+    private LatLng lastPosition;
 
-        for (Marker marker : markers) {
-            spinnerItems.add(marker.getTitle());
+    private void retrieveGroupsAndFriendsFromRESTService() {
+        // LAV NOGET LOGIK DER SØRGER FOR AT BRUGEREN IKKE SELV BLIVER SAT SOM EN VEN AF SIG SELV
+
+        // Temporary simulation of retrieval
+        stork.dk.storkapp.communicationObjects.helperObjects.Location johannesLocation =
+                new stork.dk.storkapp.communicationObjects.helperObjects.Location(56.150312, 10.204725, 0);
+        Friend johannes = new Friend(1, "Johannes", johannesLocation);
+
+        stork.dk.storkapp.communicationObjects.helperObjects.Location mortensLocation =
+                new stork.dk.storkapp.communicationObjects.helperObjects.Location(56.171096, 10.189839, 0);
+        Friend morten = new Friend(2, "Morten", mortensLocation);
+
+        stork.dk.storkapp.communicationObjects.helperObjects.Location mathiasLocation =
+                new stork.dk.storkapp.communicationObjects.helperObjects.Location(55.672761, 12.564924, 0);
+        Friend mathias = new Friend(3, "Mathias", mathiasLocation);
+
+        friends = new ArrayList<>();
+        friends.add(johannes);
+        friends.add(morten);
+        friends.add(mathias);
+
+        List<Friend> group1sFriends = new ArrayList<>();
+        group1sFriends.add(johannes);
+        group1sFriends.add(morten);
+
+        Group group1 = new Group(1, "First group", group1sFriends);
+
+        List<Friend> group2sFriends = new ArrayList<>();
+        group2sFriends.add(mathias);
+        group2sFriends.add(morten);
+
+        Group group2 = new Group(2, "Second group", group2sFriends);
+
+        groups = new ArrayList<>();
+        groups.add(group1);
+        groups.add(group2);
+    }
+
+    private void populateFriendsSpinner() {
+        List<Traceable> spinnerItems = new ArrayList<Traceable>();
+
+        Set<Friend> allFriends = new HashSet();
+        for (Group group : groups) {
+            allFriends.addAll(group.getFriends());
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        Group groupContainingAllFriends = new Group(0, "Show all", new ArrayList<Friend>(allFriends));
+        spinnerItems.add(groupContainingAllFriends);
+
+        for (Group group : groups) {
+            spinnerItems.add(group);
+            for (Friend friend : group.getFriends()) {
+                spinnerItems.add(friend);
+            }
+        }
+
+        ArrayAdapter<Traceable> adapter = new ArrayAdapter<Traceable>(
                 getActivity(), android.R.layout.simple_spinner_item, spinnerItems);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         findFriendsSpinner.setAdapter(adapter);
     }
 
-    private List<Marker> populateMarkerList() {
-        LatLng sydney = new LatLng(-34, 151);
-        Marker marker1 = googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker 1").snippet("Marker Description 1"));
+    private Map<Integer, Marker> getFriendsMarkers() {
+        Map<Integer, Marker> markers = new HashMap<>();
 
-        LatLng sydney2 = new LatLng(-34, 152);
-        Marker marker2 = googleMap.addMarker(new MarkerOptions().position(sydney2).title("Marker 2").snippet("Marker Description 2"));
-
-        ArrayList<Marker> markers = new ArrayList<>();
-        markers.add(marker1);
-        markers.add(marker2);
+        for (Friend friend : friends) {
+            LatLng location3 = new LatLng(friend.getLocation().getLatitude(), friend.getLocation().getLongitude());
+            markers.put(friend.getId(), googleMap.addMarker(new MarkerOptions().position(location3).title(friend.getName())));
+        }
 
         return markers;
     }
 
     private void zoomMap(List<Marker> markers, int mapEdgeOffset) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
         for (Marker marker : markers) {
             builder.include(marker.getPosition());
         }
+
+        if (lastPosition != null) builder.include(lastPosition);
+
         LatLngBounds bounds = builder.build();
 
         CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, mapEdgeOffset);
@@ -94,7 +169,11 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
-        //mapView.onResume(); // needed to get the map to display immediately
+        retrieveGroupsAndFriendsFromRESTService();
+
+        criteria = new Criteria();
+        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        provider = locationManager.getBestProvider(criteria, true);
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -115,7 +194,8 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
-                startMap();
+                getMyPosition();
+                setMap();
             }
         }
     }
@@ -139,11 +219,26 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
     }
 
     /**
+     * Retrieves users position
+     *
+     * precondition: anywhere this method is called, enabled location permissions should be verified
+     */
+    private void getMyPosition() {
+        @SuppressLint("MissingPermission")
+        Location location = locationManager.getLastKnownLocation(provider);
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        lastPosition = new LatLng(latitude, longitude);
+
+        //return googleMap.addMarker(new MarkerOptions().position(myPosition).title("ME"));
+    }
+
+    /**
      * Starts the map
      *
      * precondition: anywhere this method is called, enabled location permissions should be verified
      */
-    private void startMap() {
+    private void setMap() {
         mapView.getMapAsync(new OnMapReadyCallback() {
             @SuppressLint("MissingPermission")
             @Override
@@ -152,18 +247,31 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
 
                 googleMap.setMyLocationEnabled(true);
 
-                googleMap.clear();
-
-                final List<Marker> markers = populateMarkerList();
-
-                populateFriendsSpinner(markers);
+                populateFriendsSpinner();
 
                 findFriendsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        // TODO: Add support for groups
-                        if (position > 0) zoomMap(Collections.singletonList(markers.get(position - 1)), 0);
-                        else zoomMap(markers, 50);
+                    public void onItemSelected(AdapterView<?> parent, View view, final int position, long id) {
+                        // Remove all markers on the map
+                        googleMap.clear();
+
+                        Map<Integer, Marker> markers = getFriendsMarkers();
+
+                        List<Marker> markersForMapZoom = new ArrayList<>();
+
+                        Traceable selectedItem = (Traceable) parent.getSelectedItem();
+
+                        if (selectedItem instanceof Group) {
+                            Group selectedGroup = (Group) selectedItem;
+
+                            for (Friend friend : selectedGroup.getFriends()) {
+                                markersForMapZoom.add(markers.get(friend.getId()));
+                            }
+                        } else if (selectedItem instanceof Friend) {
+                            markersForMapZoom.add(markers.get(selectedItem.getId()));
+                        }
+
+                        zoomMap(markersForMapZoom, 200);
                     }
 
                     @Override
@@ -171,7 +279,6 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
 
                     }
                 });
-
             }
         });
     }
@@ -233,7 +340,7 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
-                        startMap();
+                        setMap();
                     }
 
                 } else {
