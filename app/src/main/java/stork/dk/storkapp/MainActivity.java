@@ -25,8 +25,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import stork.dk.storkapp.communicationObjects.Constants;
+
 /**
- * @author mathiasjensen
+ * @author mathiasjensen, Johannes
  */
 public class MainActivity extends AppCompatActivity {
     private static final String APP_SHARED_PREFS = "login_preference";
@@ -216,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void logOut(){
         sharedPrefs = getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        loggedIn = sharedPrefs.getBoolean("loggedInState", false);
+        loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
 
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putBoolean("loggedInState", false);

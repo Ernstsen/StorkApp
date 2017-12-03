@@ -24,8 +24,6 @@ import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.LoginRequest;
 
 /**
- * Created by mathiasjensen on 29/11/17.
- *
  * @author Mathias, Johannes
  */
 
@@ -33,7 +31,6 @@ public class LoginFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
     private boolean clicked;
 
-    private static final String APP_SHARED_PREFS = "login_preference";
 
     public LoginFragment() {
     }
@@ -89,7 +86,7 @@ public class LoginFragment extends Fragment {
                     LoginRequest resp = new Gson().fromJson(new String(responseBody), LoginRequest.class);
                     FragmentActivity activity = getActivity();
 
-                    SharedPreferences sharedPreferences = activity.getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+                    SharedPreferences sharedPreferences = activity.getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.LOGGED_IN_KEY, true);
                     editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());

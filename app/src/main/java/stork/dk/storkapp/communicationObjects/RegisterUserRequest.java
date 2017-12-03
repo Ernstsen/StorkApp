@@ -6,7 +6,6 @@ import java.io.Serializable;
  * @author Johannes Ernstsen
  */
 public class RegisterUserRequest implements Serializable {
-    private boolean success;
     private String name;
     private String password;
     private String mail;
@@ -16,21 +15,12 @@ public class RegisterUserRequest implements Serializable {
     public RegisterUserRequest() {
     }
 
-    public RegisterUserRequest(boolean success, String name, String password, String mail, int userId, String sessionId) {
-        this.success = success;
+    public RegisterUserRequest(String name, String password, String mail, int userId, String sessionId) {
         this.name = name;
         this.password = password;
         this.mail = mail;
         this.userId = userId;
         this.sessionId = sessionId;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
     }
 
     public String getName() {

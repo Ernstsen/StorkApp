@@ -18,10 +18,10 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 
 public class CommunicationsHandler {
     private static final String BASE_URL = "http://e-software.dk:8080/StorkServer_war/";
-//    private static final String BASE_URL = "http://localhost:8080/";
     private static final String LOGIN_URL = "login";
+    private static final String REGISTER_URL = "register";
     private final static AsyncHttpClient client = new AsyncHttpClient();
-    ;
+
     private final static Gson gson = new Gson();
 
     private static void get(String url, RequestParams params, ResponseHandlerInterface responseHandler) {
@@ -38,6 +38,15 @@ public class CommunicationsHandler {
         String payload = gson.toJson(request);
         try {
             post(context, BASE_URL + LOGIN_URL, payload, responseHandler);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void register(Context context, RegisterUserRequest request, ResponseHandlerInterface responseHandler) {
+        String payload = gson.toJson(request);
+        try {
+            post(context, BASE_URL + REGISTER_URL, payload, responseHandler);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
