@@ -9,6 +9,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -21,10 +22,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -50,6 +57,7 @@ import stork.dk.storkapp.friends.Group;
 import stork.dk.storkapp.friends.Traceable;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  * @author Morten Erfurt Hansen
@@ -61,13 +69,15 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
 
     private GoogleMap googleMap;
 
-    private Criteria criteria;
-    private LocationManager locationManager;
-    private String provider;
+    private LocationRequest mLocationRequest;
+
+    private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
+    private long FASTEST_INTERVAL = 5000; /* 5 sec */
+
+    private LatLng lastPosition;
 
     private List<Group> groups;
     private List<Friend> friends;
-    private LatLng lastPosition;
 
     private void retrieveGroupsAndFriendsFromRESTService() {
         // LAV NOGET LOGIK DER SØRGER FOR AT BRUGEREN IKKE SELV BLIVER SAT SOM EN VEN AF SIG SELV
@@ -147,7 +157,7 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         for (Marker marker : markers) {
-            builder.include(marker.getPosition());
+            if (marker != null) builder.include(marker.getPosition());
         }
 
         if (lastPosition != null) builder.include(lastPosition);
@@ -171,10 +181,6 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
 
         retrieveGroupsAndFriendsFromRESTService();
 
-        criteria = new Criteria();
-        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-        provider = locationManager.getBestProvider(criteria, true);
-
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
         } catch (Exception e) {
@@ -194,7 +200,7 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
                     Manifest.permission.ACCESS_FINE_LOCATION)
                     == PackageManager.PERMISSION_GRANTED) {
 
-                getMyPosition();
+                if (mLocationRequest == null) startLocationUpdates();
                 setMap();
             }
         }
@@ -219,18 +225,49 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
     }
 
     /**
-     * Retrieves users position
+     * Trigger new location updates at interval
      *
      * precondition: anywhere this method is called, enabled location permissions should be verified
      */
-    private void getMyPosition() {
-        @SuppressLint("MissingPermission")
-        Location location = locationManager.getLastKnownLocation(provider);
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        lastPosition = new LatLng(latitude, longitude);
+    @SuppressLint("MissingPermission")
+    protected void startLocationUpdates() {
 
-        //return googleMap.addMarker(new MarkerOptions().position(myPosition).title("ME"));
+        // Create the location request to start receiving updates
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(UPDATE_INTERVAL);
+        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+
+        // Create LocationSettingsRequest object using location request
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(mLocationRequest);
+        LocationSettingsRequest locationSettingsRequest = builder.build();
+
+        // Check whether location settings are satisfied
+        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
+        SettingsClient settingsClient = LocationServices.getSettingsClient(getActivity());
+        settingsClient.checkLocationSettings(locationSettingsRequest);
+
+        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
+        getFusedLocationProviderClient(getActivity()).requestLocationUpdates(mLocationRequest, new LocationCallback() {
+                    @Override
+                    public void onLocationResult(LocationResult locationResult) {
+                        onLocationChanged(locationResult.getLastLocation());
+                    }
+                },
+                Looper.myLooper());
+    }
+
+    // Retrieves users position
+    public void onLocationChanged(Location location) {
+        // New location has now been determined
+        // For debugging:
+        String msg = "Updated Location: " +
+                Double.toString(location.getLatitude()) + "," +
+                Double.toString(location.getLongitude());
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+
+        lastPosition = new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     /**
