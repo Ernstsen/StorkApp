@@ -5,4 +5,6 @@ package stork.dk.storkapp.communicationObjects;
  */
 
 public class Constants {
+    public static final String LOGGED_IN_KEY = "loggedInState";
+    public static final String CURRENT_USER_KEY = "currentUser";
 }
