@@ -17,4 +17,9 @@
 
     <string name="title_location_permission">Location permissions</string>
     <string name="text_location_permission">To use this app\'s full potential; permissions to track you\'re location must be enabled. You will be prompted for this after clicking "OK" below.</string>
+    <string name="register_name">Name</string>
+    <string name="register_email_address">Email address</string>
+    <string name="register_password">Password</string>
+    <string name="register_password_repeated">Password Repeated</string>
+    <string name="register_button_text">Sign Up</string>
 </resources>

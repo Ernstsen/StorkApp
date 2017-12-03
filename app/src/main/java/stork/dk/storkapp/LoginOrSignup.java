@@ -30,7 +30,6 @@ public class LoginOrSignup extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private boolean loggedIn;
     private int userId;
-    private boolean clicked;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -51,8 +50,6 @@ public class LoginOrSignup extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_or_signup);
-
-        clicked = false;
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
