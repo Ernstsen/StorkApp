@@ -23,6 +23,6 @@
     <string name="register_password_repeated">Password Repeated</string>
     <string name="register_button_text">Sign Up</string>
     <string name="login_email_address_hint">Email address</string>
-    <string name="remember_me">Stay logged in</string>
+    <string name="remember_me">Remember me</string>
     <string name="login_button_text">Login</string>
 </resources>
