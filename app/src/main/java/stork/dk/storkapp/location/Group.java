@@ -1,4 +1,4 @@
-package stork.dk.storkapp.friends;
+package stork.dk.storkapp.location;
 
 import java.util.List;
 

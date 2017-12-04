@@ -16,7 +16,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="title_location_permission">Location permissions</string>
-    <string name="text_location_permission">To use this app\'s full potential; permissions to track you\'re location must be enabled. You will be prompted for this after clicking "OK" below.</string>
+    <string name="text_location_permission">To use this app; you must share you\'re location. If you choose not to; the app will terminate. You will be prompted for this after clicking "OK" below.</string>
     <string name="register_name">Name</string>
     <string name="register_email_address">Email address</string>
     <string name="register_password">Password</string>

@@ -5,13 +5,9 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -24,8 +20,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
@@ -42,38 +36,41 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import stork.dk.storkapp.friends.Friend;
-import stork.dk.storkapp.friends.Group;
-import stork.dk.storkapp.friends.Traceable;
+import stork.dk.storkapp.location.Friend;
+import stork.dk.storkapp.location.Group;
+import stork.dk.storkapp.location.Traceable;
 
-import static android.content.Context.LOCATION_SERVICE;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  * @author Morten Erfurt Hansen
  */
-public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRequestPermissionsResultCallback {
+public class MapOverviewFragment extends Fragment/* implements ActivityCompat.OnRequestPermissionsResultCallback*/ {
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+
+    private long UPDATE_INTERVAL = 30000;  /* 30 secs */
+    private long FASTEST_INTERVAL = 30000; /* 30 sec */
+
     private View rootView;
     private Spinner findFriendsSpinner;
     private MapView mapView;
 
     private GoogleMap googleMap;
-
     private LocationRequest mLocationRequest;
-
-    private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
-    private long FASTEST_INTERVAL = 5000; /* 5 sec */
-
     private LatLng lastPosition;
 
     private List<Group> groups;
@@ -187,6 +184,32 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
             e.printStackTrace();
         }
 
+        Dexter.withActivity(getActivity())
+                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                .withListener(new PermissionListener() {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                        startLocationUpdates();
+                        setMap();
+                    }
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+                        System.exit(0);
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle(R.string.title_location_permission)
+                                .setMessage(R.string.text_location_permission)
+                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        //Prompt the user once explanation has been shown
+                                        token.continuePermissionRequest();
+                                    }
+                                })
+                                .create()
+                                .show();
+                    }
+                }).check();
+
         return rootView;
     }
 
@@ -194,16 +217,6 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
     public void onResume() {
         super.onResume();
         mapView.onResume();
-
-        if (checkLocationPermission()) {
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-
-                if (mLocationRequest == null) startLocationUpdates();
-                setMap();
-            }
-        }
     }
 
     @Override
@@ -231,7 +244,6 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
      */
     @SuppressLint("MissingPermission")
     protected void startLocationUpdates() {
-
         // Create the location request to start receiving updates
         mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -318,77 +330,5 @@ public class MapOverviewFragment extends Fragment implements ActivityCompat.OnRe
                 });
             }
         });
-    }
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
-    public boolean checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(R.string.title_location_permission)
-                        .setMessage(R.string.text_location_permission)
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(getActivity(),
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
-                        .create()
-                        .show();
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(getActivity(),
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(getActivity(),
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        setMap();
-                    }
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-
-                }
-                return;
-            }
-
-        }
     }
 }

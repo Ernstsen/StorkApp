@@ -1,4 +1,4 @@
-package stork.dk.storkapp.friends;
+package stork.dk.storkapp.location;
 
 /**
  * This interface is used to enable both Group's and Fried's to populate the same spinner
