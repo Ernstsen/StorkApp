@@ -168,7 +168,12 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return mapOverviewFragment = new MapOverviewFragment();
+                    mapOverviewFragment = new MapOverviewFragment();
+                    Bundle args = new Bundle();
+                    args.putInt(Constants.CURRENT_USER_KEY, userId);
+                    args.putString(Constants.CURRENT_SESSION_KEY, sessionId);
+                    mapOverviewFragment.setArguments(args);
+                    return mapOverviewFragment;
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
 

@@ -3,11 +3,16 @@ package stork.dk.storkapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,13 +37,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,11 +54,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import cz.msebera.android.httpclient.Header;
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
 import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
+import stork.dk.storkapp.communicationObjects.Constants;
+import stork.dk.storkapp.communicationObjects.LoginRequest;
+import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
 import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
 import stork.dk.storkapp.friendsSpinner.Traceable;
@@ -70,6 +83,9 @@ public class MapOverviewFragment extends Fragment {
 
     private List<Group> groups;
     private List<Friend> friends;
+
+    private int userId;
+    private String sessionId;
 
     private void retrieveGroupsAndFriendsFromRESTService() {
         // LAV NOGET LOGIK DER SØRGER FOR AT BRUGEREN IKKE SELV BLIVER SAT SOM EN VEN AF SIG SELV
@@ -168,6 +184,10 @@ public class MapOverviewFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_map_overview, container, false);
         findFriendsSpinner = (Spinner) rootView.findViewById(R.id.findFriendsSpinner);
 
+        Bundle args = getArguments();
+        userId = args.getInt(Constants.CURRENT_USER_KEY);
+        sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
+
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
@@ -259,7 +279,7 @@ public class MapOverviewFragment extends Fragment {
     }
 
     // Retrieves users position
-    public void updateLastKnownPosition(Location location) {
+    private void updateLastKnownPosition(Location location) {
         // New location has now been determined
         // For debugging:
         /*String msg = "Updated Location: " +
@@ -268,6 +288,35 @@ public class MapOverviewFragment extends Fragment {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();*/
 
         lastKnownPosition = new LatLng(location.getLatitude(), location.getLongitude());
+
+        updateUserLocationAtRestService(location);
+    }
+
+    private void updateUserLocationAtRestService(Location location) {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        long now = timestamp.getTime();
+
+        stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
+                = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
+
+        UpdateLocationRequest updateLocationRequest = new UpdateLocationRequest();
+        updateLocationRequest.setUserId(userId);
+        updateLocationRequest.setSessionId(sessionId);
+        updateLocationRequest.setLocation(locationToUpload);
+
+        CommunicationsHandler.updateLocation(getActivity(), updateLocationRequest, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                //Toast.makeText(getActivity(), "onSuccess - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                // Try again?
+                //Toast.makeText(getActivity(), "onFailure - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /**

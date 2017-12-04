@@ -20,6 +20,7 @@ public class CommunicationsHandler {
     private static final String BASE_URL = "http://e-software.dk:8080/StorkServer_war/";
     private static final String LOGIN_URL = "login";
     private static final String REGISTER_URL = "register";
+    private static final String UPDATE_LOCATION_URL = "updateLocation";
     private final static AsyncHttpClient client = new AsyncHttpClient();
 
     private final static Gson gson = new Gson();
@@ -52,4 +53,12 @@ public class CommunicationsHandler {
         }
     }
 
+    public static void updateLocation(Context context, UpdateLocationRequest request, ResponseHandlerInterface responseHandler) {
+        String payload = gson.toJson(request);
+        try {
+            post(context, BASE_URL + UPDATE_LOCATION_URL, payload, responseHandler);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
 }
