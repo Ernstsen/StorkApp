@@ -1,4 +1,4 @@
-package stork.dk.storkapp.location;
+package stork.dk.storkapp.friendsSpinner;
 
 import stork.dk.storkapp.communicationObjects.helperObjects.Location;
 

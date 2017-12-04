@@ -35,4 +35,5 @@ dependencies {
     compile 'com.android.support:support-v4:26.1.0'
     compile 'com.android.support:appcompat-v7:26.1.0'
     compile 'com.karumi:dexter:4.2.0'
+    compile 'io.nlopez.smartlocation:library:3.3.3'
 }

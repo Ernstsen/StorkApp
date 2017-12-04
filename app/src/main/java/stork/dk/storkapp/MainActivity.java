@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private int userId;
     private boolean loggedIn;
 
+    private MapOverviewFragment mapOverviewFragment;
+
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             // Return a PlaceholderFragment (defined as a static inner class below).
             switch (position) {
                 case 0:
-                    return new MapOverviewFragment();
+                    return mapOverviewFragment = new MapOverviewFragment();
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
 
@@ -207,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putBoolean("loggedInState", false);
         editor.apply();
 
+        if (mapOverviewFragment != null) mapOverviewFragment.stopLocationUpdates();
 
         Toast.makeText(MainActivity.this,"Logged out!",
                 Toast.LENGTH_LONG).show();

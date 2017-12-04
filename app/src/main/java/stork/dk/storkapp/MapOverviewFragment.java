@@ -4,14 +4,10 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -50,28 +46,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import stork.dk.storkapp.location.Friend;
-import stork.dk.storkapp.location.Group;
-import stork.dk.storkapp.location.Traceable;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.location.config.LocationAccuracy;
+import io.nlopez.smartlocation.location.config.LocationParams;
+import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
+import stork.dk.storkapp.friendsSpinner.Friend;
+import stork.dk.storkapp.friendsSpinner.Group;
+import stork.dk.storkapp.friendsSpinner.Traceable;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  * @author Morten Erfurt Hansen
  */
-public class MapOverviewFragment extends Fragment/* implements ActivityCompat.OnRequestPermissionsResultCallback*/ {
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-
-    private long UPDATE_INTERVAL = 30000;  /* 30 secs */
-    private long FASTEST_INTERVAL = 30000; /* 30 sec */
-
+public class MapOverviewFragment extends Fragment {
     private View rootView;
     private Spinner findFriendsSpinner;
     private MapView mapView;
 
     private GoogleMap googleMap;
-    private LocationRequest mLocationRequest;
-    private LatLng lastPosition;
+    private LatLng lastKnownPosition;
 
     private List<Group> groups;
     private List<Friend> friends;
@@ -157,7 +152,7 @@ public class MapOverviewFragment extends Fragment/* implements ActivityCompat.On
             if (marker != null) builder.include(marker.getPosition());
         }
 
-        if (lastPosition != null) builder.include(lastPosition);
+        if (lastKnownPosition != null) builder.include(lastKnownPosition);
 
         LatLngBounds bounds = builder.build();
 
@@ -237,53 +232,46 @@ public class MapOverviewFragment extends Fragment/* implements ActivityCompat.On
         mapView.onLowMemory();
     }
 
-    /**
-     * Trigger new location updates at interval
-     *
-     * precondition: anywhere this method is called, enabled location permissions should be verified
-     */
-    @SuppressLint("MissingPermission")
-    protected void startLocationUpdates() {
-        // Create the location request to start receiving updates
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+    private void startLocationUpdates() {
+        long trackingInterval = 30 * 1000;  /* 30 secs */
+        float trackingDistance = 0;
+        LocationAccuracy trackingAccuracy = LocationAccuracy.HIGH;
 
-        // Create LocationSettingsRequest object using location request
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(mLocationRequest);
-        LocationSettingsRequest locationSettingsRequest = builder.build();
+        LocationParams.Builder builder = new LocationParams.Builder()
+                .setAccuracy(trackingAccuracy)
+                .setDistance(trackingDistance)
+                .setInterval(trackingInterval);
 
-        // Check whether location settings are satisfied
-        // https://developers.google.com/android/reference/com/google/android/gms/location/SettingsClient
-        SettingsClient settingsClient = LocationServices.getSettingsClient(getActivity());
-        settingsClient.checkLocationSettings(locationSettingsRequest);
-
-        // new Google API SDK v11 uses getFusedLocationProviderClient(this)
-        getFusedLocationProviderClient(getActivity()).requestLocationUpdates(mLocationRequest, new LocationCallback() {
+        SmartLocation.with(getActivity())
+                .location()
+                .continuous()
+                .config(builder.build())
+                .start(new OnLocationUpdatedListener() {
                     @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        onLocationChanged(locationResult.getLastLocation());
+                    public void onLocationUpdated(Location location) {
+                        updateLastKnownPosition(location);
                     }
-                },
-                Looper.myLooper());
+                });
+    }
+
+    public void stopLocationUpdates() {
+        SmartLocation.with(getActivity()).location().stop();
     }
 
     // Retrieves users position
-    public void onLocationChanged(Location location) {
+    public void updateLastKnownPosition(Location location) {
         // New location has now been determined
         // For debugging:
-        String msg = "Updated Location: " +
+        /*String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
                 Double.toString(location.getLongitude());
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();*/
 
-        lastPosition = new LatLng(location.getLatitude(), location.getLongitude());
+        lastKnownPosition = new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     /**
-     * Starts the map
+     * Sets the map
      *
      * precondition: anywhere this method is called, enabled location permissions should be verified
      */
