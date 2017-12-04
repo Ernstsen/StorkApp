@@ -19,7 +19,6 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import cz.msebera.android.httpclient.Header;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
-import stork.dk.storkapp.communicationObjects.LoginRequest;
 import stork.dk.storkapp.communicationObjects.RegisterUserRequest;
 
 /**
@@ -101,6 +100,7 @@ public class RegisterFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.LOGGED_IN_KEY, true);
                     editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
+                    editor.putString(Constants.CURRENT_SESSION_KEY, resp.getSessionId());
                     editor.apply();
                     Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
 

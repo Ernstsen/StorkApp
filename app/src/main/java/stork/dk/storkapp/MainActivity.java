@@ -25,10 +25,10 @@ import stork.dk.storkapp.communicationObjects.Constants;
  * @author Mathias, Johannes
  */
 public class MainActivity extends AppCompatActivity {
-    private static final String APP_SHARED_PREFS = "login_preference";
     SharedPreferences sharedPrefs;
     private int userId;
     private boolean loggedIn;
+    private String sessionId;
 
     private MapOverviewFragment mapOverviewFragment;
 
@@ -51,9 +51,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sharedPrefs = getApplicationContext().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        loggedIn = sharedPrefs.getBoolean("loggedInState",false);
-        userId = sharedPrefs.getInt("currentUser",0);
+        sharedPrefs = getApplicationContext().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY,false);
+        userId = sharedPrefs.getInt(Constants.CURRENT_USER_KEY,0);
+        sessionId = sharedPrefs.getString(Constants.CURRENT_SESSION_KEY,"");
 
         setContentView(R.layout.activity_main);
 
@@ -191,8 +192,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void checkIfLoggedIn(){
-        sharedPrefs = getApplicationContext().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        loggedIn = sharedPrefs.getBoolean("loggedInState", false);
+        sharedPrefs = getApplicationContext().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
         if(!loggedIn) {
             Intent intent = new Intent(this, LoginOrSignup.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -202,11 +203,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void logOut(){
-        sharedPrefs = getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        sharedPrefs = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
 
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putBoolean("loggedInState", false);
+        editor.putBoolean(Constants.LOGGED_IN_KEY, false);
         editor.apply();
 
         if (mapOverviewFragment != null) mapOverviewFragment.stopLocationUpdates();

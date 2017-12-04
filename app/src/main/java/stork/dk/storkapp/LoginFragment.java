@@ -92,6 +92,7 @@ public class LoginFragment extends Fragment {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.LOGGED_IN_KEY, true);
                     editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
+                    editor.putString(Constants.CURRENT_SESSION_KEY, resp.getSessionId());
                     Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
                     Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
                     loginSuccess.putExtra("fromLoginPage", "loggedIn");
