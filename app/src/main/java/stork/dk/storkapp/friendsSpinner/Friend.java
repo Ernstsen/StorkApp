@@ -12,7 +12,7 @@ public class Friend implements Traceable, Serializable {
     private String name;
     private Location location;
 
-    public Friend(int userId, String name, Location location) {
+    public Friend(int id, String name, Location location) {
         this.id = id;
         this.name = name;
         this.location = location;
