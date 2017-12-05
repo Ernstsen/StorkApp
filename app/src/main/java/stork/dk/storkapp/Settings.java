@@ -58,7 +58,10 @@ public class Settings extends AppCompatActivity {
     }
 
     public void readChanges(){
-        newUserName = nameField.getText().toString();
+        //TODO: DO something here to change name
+        if(nameField != null) {
+            newUserName = nameField.getText().toString();
+        }
     }
 
     private void buttonFunction() {
