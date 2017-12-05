@@ -64,7 +64,7 @@ public class MapOverviewFragment extends Fragment {
 
     private List<Group> groups;
     private List<Friend> friends;
-    
+
     private int userId;
     private String sessionId;
 
