@@ -13,7 +13,7 @@ import java.util.Map;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
- * @author Johannes
+ * @author Johannes, Morten
  */
 
 public class CommunicationsHandler {

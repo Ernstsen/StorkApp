@@ -57,7 +57,7 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getActivity(), "FUCK", Toast.LENGTH_LONG);
+                Toast.makeText(getActivity(), "FUCK", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -66,7 +66,7 @@ public class FriendsFragment extends Fragment {
 
     private void populate(List<String> items) {
         ListView viewById = rootView.findViewById(R.id.friendList);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, new String[]{"Test", "TEST", "TEST"});
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
         viewById.setAdapter(adapter);
     }
 
