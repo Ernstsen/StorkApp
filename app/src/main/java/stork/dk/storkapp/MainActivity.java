@@ -207,16 +207,15 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
         super.onBackPressed();
+        finish();
     }
 
     public void checkIfLoggedIn() {
         sharedPrefs = getApplicationContext().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
+
+
         if (!loggedIn) {
             Intent intent = new Intent(this, LoginOrSignup.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

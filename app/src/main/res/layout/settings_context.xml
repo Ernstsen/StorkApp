@@ -23,73 +23,79 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- TODO: add edit-pen-logo to the left -->
+
     <EditText
-        android:id="@+id/editText"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginEnd="45dp"
-        android:layout_marginStart="45dp"
-        android:layout_marginTop="8dp"
+        android:id="@+id/username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:layout_weight="1"
+        android:background="@android:color/transparent"
+        android:drawablePadding="5dp"
+        android:drawableStart="@drawable/edit_icon"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="LOAD_USERNAME"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/textView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/editText2"
+        android:id="@+id/repeatPassword"
         android:layout_width="0dp"
         android:layout_height="46dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:ems="10"
         android:hint="Repeat Password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText4" />
+        app:layout_constraintTop_toBottomOf="@+id/newPassword" />
 
     <EditText
-        android:id="@+id/editText4"
+        android:id="@+id/newPassword"
         android:layout_width="0dp"
         android:layout_height="46dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:ems="10"
         android:hint="New Password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText3" />
+        app:layout_constraintTop_toBottomOf="@+id/currentPassword" />
 
     <EditText
-        android:id="@+id/editText3"
+        android:id="@+id/currentPassword"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="15dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
+        android:layout_height="46dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Current Password"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText" />
+        app:layout_constraintTop_toBottomOf="@+id/username" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/saveChanges"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
-        android:text="Change Password"
-        app:layout_constraintEnd_toEndOf="@+id/editText2"
-        app:layout_constraintStart_toStartOf="@+id/editText2"
-        app:layout_constraintTop_toBottomOf="@+id/editText2" />
+        android:text="Save Changes"
+        app:layout_constraintEnd_toEndOf="@+id/repeatPassword"
+        app:layout_constraintStart_toStartOf="@+id/repeatPassword"
+        app:layout_constraintTop_toBottomOf="@+id/repeatPassword" />
 
 </android.support.constraint.ConstraintLayout>

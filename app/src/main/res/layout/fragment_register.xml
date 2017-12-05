@@ -92,7 +92,7 @@
             android:layout_marginStart="25dp"
             android:layout_marginTop="25dp"
             android:contentDescription="TODO"
-            app:srcCompat="@mipmap/ic_launcher_foreground"
+            app:srcCompat="@mipmap/logo_foreground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.503"
             app:layout_constraintStart_toStartOf="parent"

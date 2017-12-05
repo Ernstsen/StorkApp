@@ -13,18 +13,20 @@ import java.util.Map;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
- * @author Johannes, Morten
+ * @author Johannes, Mathias, Morten
  */
 
 public class CommunicationsHandler {
     private static final String BASE_URL = "http://e-software.dk:8080/StorkServer_war/";
     private static final String LOGIN_URL = "login";
     private static final String REGISTER_URL = "register";
+    private static final String GET_USER_URL = "getUser";
     private static final String UPDATE_LOCATION_URL = "updateLocation";
     private static final String GET_FRIENDS_URL = "getFriends";
     private static final String GET_GROUPS_URL = "getGroups";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
+
     private final static Gson gson = new Gson();
 
     private static void get(String url, RequestParams params, ResponseHandlerInterface responseHandler) {
@@ -72,5 +74,10 @@ public class CommunicationsHandler {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void getUser(Map<String, String> params, ResponseHandlerInterface responseHandler){
+        RequestParams requestParams = new RequestParams(params);
+        get(BASE_URL+ GET_USER_URL, requestParams, responseHandler);
     }
 }

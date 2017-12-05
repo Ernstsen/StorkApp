@@ -2,8 +2,10 @@ package stork.dk.storkapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -261,6 +264,7 @@ public class MapOverviewFragment extends Fragment {
 
     // Retrieves users position
     private void updateLastKnownPosition(Location location) {
+        //TODO: Remove below
         // New location has now been determined
         // For debugging:
         /*String msg = "Updated Location: " +
@@ -291,6 +295,12 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if(statusCode == 403){
+                    Intent login = new Intent();
+                    startActivity(login);
+                    getActivity().finish();
+                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                }
                 // Try again?
                 //Toast.makeText(getActivity(), "onFailure - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
             }
