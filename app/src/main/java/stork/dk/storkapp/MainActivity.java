@@ -22,7 +22,7 @@ import android.widget.Toast;
 import stork.dk.storkapp.communicationObjects.Constants;
 
 /**
- * @author Mathias, Johannes
+ * @author Mathias, Johannes, Morten
  */
 public class MainActivity extends AppCompatActivity {
     SharedPreferences sharedPrefs;

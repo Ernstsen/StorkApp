@@ -1,16 +1,18 @@
 package stork.dk.storkapp.friendsSpinner;
 
+import java.io.Serializable;
+
 import stork.dk.storkapp.communicationObjects.helperObjects.Location;
 
 /**
- * @author Morten Erfurt Hansen
+ * @author morten
  */
-public class Friend implements Traceable {
+public class Friend implements Traceable, Serializable {
     private int id;
     private String name;
     private Location location;
 
-    public Friend(int id, String name, Location location) {
+    public Friend(int userId, String name, Location location) {
         this.id = id;
         this.name = name;
         this.location = location;
