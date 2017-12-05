@@ -1,11 +1,12 @@
 package stork.dk.storkapp.friendsSpinner;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author Morten Erfurt Hansen
+ * @author morten
  */
-public class Group implements Traceable {
+public class Group implements Traceable, Serializable {
     private int id;
     private String name;
     private List<Friend> friends;

@@ -3,30 +3,17 @@ package stork.dk.storkapp;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -37,7 +24,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -59,22 +45,17 @@ import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
-import io.nlopez.smartlocation.location.providers.LocationGooglePlayServicesProvider;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
-import stork.dk.storkapp.communicationObjects.LoginRequest;
 import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
 import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
 import stork.dk.storkapp.friendsSpinner.Traceable;
 
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
-
 /**
  * @author Morten Erfurt Hansen
  */
 public class MapOverviewFragment extends Fragment {
-    private View rootView;
     private Spinner findFriendsSpinner;
     private MapView mapView;
 
@@ -181,7 +162,7 @@ public class MapOverviewFragment extends Fragment {
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_map_overview, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_map_overview, container, false);
         findFriendsSpinner = (Spinner) rootView.findViewById(R.id.findFriendsSpinner);
 
         Bundle args = getArguments();
@@ -300,10 +281,7 @@ public class MapOverviewFragment extends Fragment {
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
 
-        UpdateLocationRequest updateLocationRequest = new UpdateLocationRequest();
-        updateLocationRequest.setUserId(userId);
-        updateLocationRequest.setSessionId(sessionId);
-        updateLocationRequest.setLocation(locationToUpload);
+        UpdateLocationRequest updateLocationRequest = new UpdateLocationRequest(userId, sessionId, locationToUpload);
 
         CommunicationsHandler.updateLocation(getActivity(), updateLocationRequest, new AsyncHttpResponseHandler() {
             @Override

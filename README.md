@@ -180,33 +180,71 @@ Gets the user information from the server
 ``` 
  
  
-### Get Locations
-Gets locations for all group members
+### Get Groups
+Gets all groups and its members excluding the user himself
 
  | key    |                  value                 |
  |:------:| :------------------------------------- |
  | Type   | GET                                    |
- | Path   | /getLocations                          |
+ | Path   | /getGroups                             |
  | Params | sessionId, userId                      |
  | Resp   | Json object LocationsResponse          |
  | Code   | 200/404/500/                           |
  
   #### Example Response:
  ```json
- {
-   "locations": {
-     "Søby": {
-       "longtitude": 3.8,
-       "lattitude": 4.5,
-       "timeStamp": 1512050488140
-     },
-     "Morten": {
-       "longtitude": 1.7,
-       "lattitude": 2.3,
-       "timeStamp": 1512050488140
-     }
-   }
- }
+{
+  "groups":[
+    {
+      "groupId":1,
+      "name":"Group 1",
+      "friends":[
+        {
+          "userId":3,
+          "name":"Søby",
+          "location":{
+            "longtitude":3.8,
+            "lattitude":4.5,
+            "timeStamp":1512050488140
+          }
+        },
+        {
+          "userId":2,
+          "name":"Morten",
+          "location":{
+            "longtitude":1.7,
+            "lattitude":2.3,
+            "timeStamp":1512050488140
+          }
+        }
+      ]
+    },
+    {
+      "groupId":2,
+      "name":"Group 2",
+      "friends":[
+        {
+          "userId":1,
+          "name":"Johannes",
+          "location":{
+            "longtitude":3.8,
+            "lattitude":4.5,
+            "timeStamp":1512050488140
+          }
+        },
+        {
+          "userId":2,
+          "name":"Morten",
+          "location":{
+            "longtitude":1.7,
+            "lattitude":2.3,
+            "timeStamp":1512050488140
+          }
+        }
+      ]
+    }
+  ]
+}
  ``` 
  
 ### Get Friends

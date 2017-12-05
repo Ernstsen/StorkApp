@@ -1,7 +1,6 @@
 package stork.dk.storkapp.communicationObjects;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -14,7 +13,7 @@ import java.util.Map;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
- * @author Johannes, Mathias
+ * @author Johannes, Mathias, Morten
  */
 
 public class CommunicationsHandler {
@@ -23,6 +22,8 @@ public class CommunicationsHandler {
     private static final String REGISTER_URL = "register";
     private static final String GET_USER_URL = "getUser";
     private static final String UPDATE_LOCATION_URL = "updateLocation";
+    private static final String GET_FRIENDS_URL = "getFriends";
+
     private final static AsyncHttpClient client = new AsyncHttpClient();
 
     private final static Gson gson = new Gson();
@@ -35,6 +36,11 @@ public class CommunicationsHandler {
         StringEntity entity = new StringEntity(payload);
         entity.setContentType("application/json");
         client.post(context, url, entity, "application/json", responseHandler);
+    }
+
+    public static void getFriends(Map<String, String> params, ResponseHandlerInterface responseHandler){
+        RequestParams requestParams = new RequestParams(params);
+        get(BASE_URL+GET_FRIENDS_URL, requestParams, responseHandler);
     }
 
     public static void login(Context context, LoginRequest request, ResponseHandlerInterface responseHandler) {
