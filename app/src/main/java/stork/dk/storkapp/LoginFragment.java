@@ -111,22 +111,6 @@ public class LoginFragment extends Fragment {
                     clicked = false;
                 }
             });
-
-//            SharedPreferences sharedPreferences = this.getActivity().getSharedPreferences(APP_SHARED_PREFS, Context.MODE_PRIVATE);
-//            boolean loggedIn = sharedPreferences.getBoolean(Constants.LOGGED_IN_KEY, false);
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.putBoolean(Constants.LOGGED_IN_KEY, true);
-//            editor.putInt("currentUser", userId);
-//            editor.apply();
-
-            //TODO: Should only show toast if login is successful
-//            Toast.makeText(getActivity(), "Logged in!",
-//                    Toast.LENGTH_LONG).show();
-//
-//            Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
-//            loginSuccess.putExtra("fromLoginPage", "loggedIn");
-//            startActivity(loginSuccess);
-//            getActivity().finish();
         }
     }
 }

@@ -1,5 +1,6 @@
 package stork.dk.storkapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private String sessionId;
 
     private MapOverviewFragment mapOverviewFragment;
+    private FriendsFragment friendsFragment;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -52,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         sharedPrefs = getApplicationContext().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY,false);
-        userId = sharedPrefs.getInt(Constants.CURRENT_USER_KEY,0);
-        sessionId = sharedPrefs.getString(Constants.CURRENT_SESSION_KEY,"");
+        loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
+        userId = sharedPrefs.getInt(Constants.CURRENT_USER_KEY, 0);
+        sessionId = sharedPrefs.getString(Constants.CURRENT_SESSION_KEY, "");
 
         setContentView(R.layout.activity_main);
 
@@ -108,9 +110,10 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent settings = new Intent(this, Settings.class);
+            startActivity(settings);
         }
-        if (id == R.id.action_logout){
+        if (id == R.id.action_logout) {
             logOut();
         }
 
@@ -166,14 +169,22 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
+            Bundle args;
             switch (position) {
                 case 0:
                     mapOverviewFragment = new MapOverviewFragment();
-                    Bundle args = new Bundle();
+                    args = new Bundle();
                     args.putInt(Constants.CURRENT_USER_KEY, userId);
                     args.putString(Constants.CURRENT_SESSION_KEY, sessionId);
                     mapOverviewFragment.setArguments(args);
                     return mapOverviewFragment;
+                case 1:
+                    friendsFragment = new FriendsFragment();
+                    args = new Bundle();
+                    args.putInt(Constants.CURRENT_USER_KEY, userId);
+                    args.putString(Constants.CURRENT_SESSION_KEY, sessionId);
+                    friendsFragment.setArguments(args);
+                    return friendsFragment;
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
 
@@ -196,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    public void checkIfLoggedIn(){
+    public void checkIfLoggedIn() {
         sharedPrefs = getApplicationContext().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
-        if(!loggedIn) {
+        if (!loggedIn) {
             Intent intent = new Intent(this, LoginOrSignup.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
@@ -207,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void logOut(){
+    public void logOut() {
         sharedPrefs = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         loggedIn = sharedPrefs.getBoolean(Constants.LOGGED_IN_KEY, false);
 
@@ -217,7 +228,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (mapOverviewFragment != null) mapOverviewFragment.stopLocationUpdates();
 
-        Toast.makeText(MainActivity.this,"Logged out!",
+        Toast.makeText(MainActivity.this, "Logged out!",
                 Toast.LENGTH_LONG).show();
 
         onResume();
