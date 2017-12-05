@@ -12,20 +12,20 @@ import stork.dk.storkapp.friendsSpinner.Group;
  */
 
 public class GroupsResponse implements Serializable {
-    private Map<String, List<Group>> groups;
+    private List<Group> groups;
 
     public GroupsResponse() {
     }
 
-    public GroupsResponse(Map<String, List<Group>> groups) {
+    public GroupsResponse(List<Group> groups) {
         this.groups = groups;
     }
 
-    public Map<String, List<Group>> getGroups() {
+    public List<Group> getGroups() {
         return groups;
     }
 
-    public void setGroups(Map<String, List<Group>> groups) {
+    public void setGroups(List<Group> groups) {
         this.groups = groups;
     }
 }

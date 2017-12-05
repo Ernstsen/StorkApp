@@ -22,6 +22,7 @@ public class CommunicationsHandler {
     private static final String REGISTER_URL = "register";
     private static final String UPDATE_LOCATION_URL = "updateLocation";
     private static final String GET_FRIENDS_URL = "getFriends";
+    private static final String GET_GROUPS_URL = "getGroups";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
     private final static Gson gson = new Gson();
@@ -38,7 +39,12 @@ public class CommunicationsHandler {
 
     public static void getFriends(Map<String, String> params, ResponseHandlerInterface responseHandler){
         RequestParams requestParams = new RequestParams(params);
-        get(BASE_URL+GET_FRIENDS_URL, requestParams, responseHandler);
+        get(BASE_URL + GET_FRIENDS_URL, requestParams, responseHandler);
+    }
+
+    public static void getGroups(Map<String, String> params, ResponseHandlerInterface responseHandler){
+        RequestParams requestParams = new RequestParams(params);
+        get(BASE_URL + GET_GROUPS_URL, requestParams, responseHandler);
     }
 
     public static void login(Context context, LoginRequest request, ResponseHandlerInterface responseHandler) {
