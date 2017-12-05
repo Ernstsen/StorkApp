@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     private MapOverviewFragment mapOverviewFragment;
     private FriendsFragment friendsFragment;
+    private GroupsFragment groupsFragment;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
     /**
      * The {@link ViewPager} that will host the section contents.
      */
@@ -185,6 +185,13 @@ public class MainActivity extends AppCompatActivity {
                     args.putString(Constants.CURRENT_SESSION_KEY, sessionId);
                     friendsFragment.setArguments(args);
                     return friendsFragment;
+                case 2:
+                    groupsFragment = new GroupsFragment();
+                    args = new Bundle();
+                    args.putInt(Constants.CURRENT_USER_KEY, userId);
+                    args.putString(Constants.CURRENT_SESSION_KEY, sessionId);
+                    groupsFragment.setArguments(args);
+                    return groupsFragment;
                 default:
                     return PlaceholderFragment.newInstance(position + 1);
 
