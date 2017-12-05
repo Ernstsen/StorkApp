@@ -24,9 +24,9 @@ public class CommunicationsHandler {
     private static final String UPDATE_LOCATION_URL = "updateLocation";
     private static final String GET_FRIENDS_URL = "getFriends";
     private static final String GET_GROUPS_URL = "getGroups";
+    private static final String GET_USERS_URL = "getUsers";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
-
     private final static Gson gson = new Gson();
 
     private static void get(String url, RequestParams params, ResponseHandlerInterface responseHandler) {
@@ -39,12 +39,12 @@ public class CommunicationsHandler {
         client.post(context, url, entity, "application/json", responseHandler);
     }
 
-    public static void getFriends(Map<String, String> params, ResponseHandlerInterface responseHandler){
+    public static void getFriends(Map<String, String> params, ResponseHandlerInterface responseHandler) {
         RequestParams requestParams = new RequestParams(params);
         get(BASE_URL + GET_FRIENDS_URL, requestParams, responseHandler);
     }
 
-    public static void getGroups(Map<String, String> params, ResponseHandlerInterface responseHandler){
+    public static void getGroups(Map<String, String> params, ResponseHandlerInterface responseHandler) {
         RequestParams requestParams = new RequestParams(params);
         get(BASE_URL + GET_GROUPS_URL, requestParams, responseHandler);
     }
@@ -76,8 +76,12 @@ public class CommunicationsHandler {
         }
     }
 
-    public static void getUser(Map<String, String> params, ResponseHandlerInterface responseHandler){
+    public static void getUser(Map<String, String> params, ResponseHandlerInterface responseHandler) {
         RequestParams requestParams = new RequestParams(params);
-        get(BASE_URL+ GET_USER_URL, requestParams, responseHandler);
+        get(BASE_URL + GET_USER_URL, requestParams, responseHandler);
+    }
+
+    public static void getUsers(ResponseHandlerInterface responseHandler) {
+        get(BASE_URL + GET_USERS_URL, new RequestParams(), responseHandler);
     }
 }

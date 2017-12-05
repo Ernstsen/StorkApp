@@ -1,5 +1,6 @@
 package stork.dk.storkapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -8,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -53,7 +53,9 @@ public class FriendsFragment extends Fragment {
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getActivity(), "TEEST", Toast.LENGTH_LONG).show();
+                Intent addFriend = new Intent(getActivity(), AddFriend.class);
+                addFriend.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(addFriend);
             }
         });
 
@@ -67,7 +69,17 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
+                if (statusCode == 403) {
+                    Intent login = new Intent(getActivity(), AddFriend.class);
+                    startActivity(login);
+                    getActivity().finish();
+                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                } else if (statusCode == 404) {
+                    Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
+                }
+
             }
         });
 

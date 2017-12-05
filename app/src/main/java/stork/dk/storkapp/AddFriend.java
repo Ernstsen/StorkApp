@@ -1,22 +1,39 @@
 package stork.dk.storkapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import java.util.ArrayList;
+
+import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
+import stork.dk.storkapp.communicationObjects.PublicUserObject;
+import stork.dk.storkapp.communicationObjects.UsersResponse;
+
+/**
+ * @author Johannes
+ */
 public class AddFriend extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friend);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -24,6 +41,41 @@ public class AddFriend extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        CommunicationsHandler.getUsers(new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                UsersResponse usersResponse = new Gson().fromJson(new String(responseBody), UsersResponse.class);
+                populate(usersResponse);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if (statusCode == 403) {
+                    Intent login = new Intent(getActivity(), AddFriend.class);
+                    startActivity(login);
+                    finish();
+                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
+
+    }
+
+    private void populate(UsersResponse usersResponse) {
+        ArrayList<String> items = new ArrayList<>();
+        for (PublicUserObject publicUserObject : usersResponse.getUsers()) {
+            items.add(publicUserObject.getMail());
+        }
+
+        ListView usersList = findViewById(R.id.users_list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+        usersList.setAdapter(adapter);
+    }
+
+    private AppCompatActivity getActivity() {
+        return this;
     }
 
 }
