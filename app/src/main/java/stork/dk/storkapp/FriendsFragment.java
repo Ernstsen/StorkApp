@@ -4,9 +4,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -24,17 +26,18 @@ import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
+import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
+import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
+import stork.dk.storkapp.friendsSpinner.Group;
 
 /**
  * @author Mathias, Johannes.
  */
 
 public class FriendsFragment extends Fragment {
-
     private View rootView;
     private Integer userId;
     private String sessionId;
-
 
     @Nullable
     @Override
@@ -62,7 +65,7 @@ public class FriendsFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 UsersResponse resp = new Gson().fromJson(new String(responseBody), UsersResponse.class);
 
-                populateWithObjects(resp.getUsers());
+                populate(resp.getUsers());
             }
 
             @Override
@@ -74,17 +77,9 @@ public class FriendsFragment extends Fragment {
         return rootView;
     }
 
-    private void populate(List<String> items) {
-        ListView viewById = rootView.findViewById(R.id.friendList);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
-        viewById.setAdapter(adapter);
-    }
-
-    private void populateWithObjects(List<PublicUserObject> users) {
-        ArrayList<String> strings = new ArrayList<>();
-        for (PublicUserObject user : users) {
-            strings.add(user.getName());
-        }
-        populate(strings);
+    private void populate(List<PublicUserObject> users) {
+        ListView friendList = rootView.findViewById(R.id.friendList);
+        final FriendsAdapter adapter = new FriendsAdapter(getActivity().getApplicationContext(), users);
+        friendList.setAdapter(adapter);
     }
 }
