@@ -142,6 +142,9 @@ public class LoginFragment extends Fragment {
                     if (statusCode == 404) {
                         Toast.makeText(getActivity(), "No match for provided email and password", Toast.LENGTH_LONG).show();
                     }
+                    if (statusCode == 500){
+                        Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
+                    }
                     clicked = false;
                 }
             });
