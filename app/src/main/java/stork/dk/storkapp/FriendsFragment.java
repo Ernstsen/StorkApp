@@ -49,7 +49,7 @@ public class FriendsFragment extends Fragment {
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
 
-        FloatingActionButton addFriend = (FloatingActionButton) rootView.findViewById(R.id.addFriendButton);
+        FloatingActionButton addFriend = rootView.findViewById(R.id.addFriendButton);
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,7 +67,7 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getActivity(), "FUCK", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
             }
         });
 
