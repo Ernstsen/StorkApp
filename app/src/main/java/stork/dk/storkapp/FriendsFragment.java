@@ -26,7 +26,7 @@ import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
 
 /**
- * Created by Johannes on 04-12-2017.
+ * @author Mathias, Johannes.
  */
 
 public class FriendsFragment extends Fragment {
