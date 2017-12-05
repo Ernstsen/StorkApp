@@ -9,11 +9,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import com.baoyz.swipemenulistview.*;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -37,6 +34,8 @@ public class FriendsFragment extends Fragment {
     private View rootView;
     private Integer userId;
     private String sessionId;
+    private FloatingActionButton removeFriends;
+    private FloatingActionButton addFriend;
 
 
     @Nullable
@@ -52,7 +51,9 @@ public class FriendsFragment extends Fragment {
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
 
-        FloatingActionButton addFriend = rootView.findViewById(R.id.addFriendButton);
+        removeFriends = rootView.findViewById(R.id.removeFriends);
+
+        addFriend = rootView.findViewById(R.id.addFriendButton);
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,23 +87,13 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-
-        //TEST for swipe menu
-        SwipeMenuListView listView = (SwipeMenuListView) getActivity().findViewById(R.id.listView);
-        ArrayList<String> list = new ArrayList<>();
-        list.add("test");
-        list.add("test2");
-        list.add("test3");
-
-       // ArrayAdapter adapter = new ArrayAdapter();
-
-
         return rootView;
     }
 
     private void populate(List<String> items) {
         ListView viewById = rootView.findViewById(R.id.friendList);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+        CustomArrayAdapter adapter = new CustomArrayAdapter((ArrayList<String>) items, getActivity(), FriendsFragment.this);
+        //final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
         viewById.setAdapter(adapter);
     }
 
@@ -112,5 +103,15 @@ public class FriendsFragment extends Fragment {
             strings.add(user.getName());
         }
         populate(strings);
+    }
+
+    public void showDeleteButton(){
+        removeFriends.setVisibility(View.VISIBLE);
+        addFriend.setVisibility(View.INVISIBLE);
+    }
+
+    public void hideDeleteButton(){
+        removeFriends.setVisibility(View.INVISIBLE);
+        addFriend.setVisibility(View.VISIBLE);
     }
 }
