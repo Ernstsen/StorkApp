@@ -5,13 +5,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,9 +26,6 @@ import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
-import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
-import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
-import stork.dk.storkapp.friendsSpinner.Group;
 
 /**
  * @author Mathias, Johannes.
@@ -38,26 +34,57 @@ import stork.dk.storkapp.friendsSpinner.Group;
 public class FriendsFragment extends Fragment {
 
     private View rootView;
-    private Integer userId;
-    private String sessionId;
     private FloatingActionButton removeFriends;
     private FloatingActionButton addFriend;
+    private ListView listView;
+    private ArrayAdapter<String> adapter;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+        listView = rootView.findViewById(R.id.friendList);
 
         Bundle args = getArguments();
-        userId = args.getInt(Constants.CURRENT_USER_KEY);
-        sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
+        Integer userId = args.getInt(Constants.CURRENT_USER_KEY);
+        String sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
         HashMap<String, String> params = new HashMap<>();
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (listView.getCheckedItemCount() > 0) {
+                    showDeleteButton();
+                } else {
+                    hideDeleteButton();
+                }
+            }
+        });
+
         removeFriends = rootView.findViewById(R.id.removeFriends);
+        removeFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
+                int itemCount = listView.getCount();
+
+                for (int i = itemCount - 1; i >= 0; i--) {
+                    if (checkedItemPositions.get(i)) {
+                        //TODO: REMOVE ITEMS
+                        hideDeleteButton();
+                    }
+                }
+                checkedItemPositions.clear();
+                adapter.notifyDataSetChanged();
+
+            }
+        });
+
 
         addFriend = rootView.findViewById(R.id.addFriendButton);
         addFriend.setOnClickListener(new View.OnClickListener() {
@@ -97,10 +124,9 @@ public class FriendsFragment extends Fragment {
     }
 
     private void populate(List<String> items) {
-        ListView viewById = rootView.findViewById(R.id.friendList);
-        CustomArrayAdapter adapter = new CustomArrayAdapter((ArrayList<String>) items, getActivity(), FriendsFragment.this);
-        //final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
-        viewById.setAdapter(adapter);
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
+        listView.setAdapter(adapter);
+        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     private void populateWithObjects(List<PublicUserObject> users) {
@@ -111,12 +137,12 @@ public class FriendsFragment extends Fragment {
         populate(strings);
     }
 
-    public void showDeleteButton(){
+    public void showDeleteButton() {
         removeFriends.setVisibility(View.VISIBLE);
         addFriend.setVisibility(View.INVISIBLE);
     }
 
-    public void hideDeleteButton(){
+    public void hideDeleteButton() {
         removeFriends.setVisibility(View.INVISIBLE);
         addFriend.setVisibility(View.VISIBLE);
     }
