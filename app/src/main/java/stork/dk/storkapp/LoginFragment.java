@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -30,7 +32,9 @@ import static stork.dk.storkapp.R.style.Theme_AppCompat_Dialog_Alert;
 public class LoginFragment extends Fragment {
     private static final String ARG_SECTION_NUMBER = "section_number";
     private boolean clicked;
-
+    private SharedPreferences.Editor editor;
+    private EditText mailField;
+    private EditText passwordField;
 
     public LoginFragment() {
     }
@@ -48,7 +52,14 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_login, container, false);
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        CheckBox rememberMe = (CheckBox) rootView.findViewById(R.id.remember_me_checkbox);
+
         clicked = false;
+        editor = sharedPref.edit();
+        mailField = rootView.findViewById(R.id.email);
+        passwordField = rootView.findViewById(R.id.password);
+
 
         Button loginButton = (Button) rootView.findViewById(R.id.login_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -58,23 +69,44 @@ public class LoginFragment extends Fragment {
             }
         });
 
+
+        if (sharedPref.getBoolean(Constants.REMEMBER_ME_CHECK, false)) {
+            rememberMe.setChecked(true);
+        }
+
+        rememberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked) {
+                    editor.putBoolean(Constants.REMEMBER_ME_CHECK, true);
+                }
+                else {
+                    editor.putBoolean(Constants.REMEMBER_ME_CHECK, false);
+                }
+                editor.apply();
+            }
+        });
+
+        if (rememberMe.isChecked()) {
+            mailField.setText(sharedPref.getString(Constants.REMEMBER_ME_EMAIL, ""));
+            passwordField.setText(sharedPref.getString(Constants.REMEMBER_ME_PASSWORD, ""));
+        }
+
         return rootView;
     }
 
     public void login(View v) {
-        //TODO:Create real login
         if (!clicked) {
             clicked = true;
 
-
             LoginRequest req = new LoginRequest();
-            EditText mailField = (EditText) v.findViewById(R.id.email);
+            mailField = (EditText) v.findViewById(R.id.email);
             if (mailField == null || mailField.getText().toString().equals("")) {
                 Toast.makeText(getActivity(), "No email supplied", Toast.LENGTH_LONG).show();
                 return;
             }
             req.setMail(mailField.getText().toString());
-            EditText passwordField = v.findViewById(R.id.password);
+            passwordField = v.findViewById(R.id.password);
             if (passwordField == null || passwordField.getText().toString().equals("")) {
                 Toast.makeText(getActivity(), "No password supplied", Toast.LENGTH_LONG).show();
                 return;
@@ -88,17 +120,19 @@ public class LoginFragment extends Fragment {
                     LoginRequest resp = new Gson().fromJson(new String(responseBody), LoginRequest.class);
                     FragmentActivity activity = getActivity();
 
-                    SharedPreferences sharedPreferences = activity.getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putBoolean(Constants.LOGGED_IN_KEY, true);
                     editor.putInt(Constants.CURRENT_USER_KEY, resp.getUserId());
                     editor.putString(Constants.CURRENT_SESSION_KEY, resp.getSessionId());
+                    editor.putString(Constants.REMEMBER_ME_EMAIL, mailField.getText().toString());
+                    editor.putString(Constants.REMEMBER_ME_PASSWORD, passwordField.getText().toString());
+                    editor.apply();
+
                     Toast.makeText(activity, "Logged In!", Toast.LENGTH_LONG).show();
+
                     Intent loginSuccess = new Intent(getActivity(), MainActivity.class);
                     loginSuccess.putExtra("fromLoginPage", "loggedIn");
                     startActivity(loginSuccess);
                     getActivity().finish();
-                    editor.apply();
                     clicked = false;
 
                 }
