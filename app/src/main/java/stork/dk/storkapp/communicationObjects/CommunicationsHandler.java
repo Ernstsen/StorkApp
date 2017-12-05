@@ -9,17 +9,19 @@ import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.ResponseHandlerInterface;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Map;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
- * @author Johannes
+ * @author Johannes, Mathias
  */
 
 public class CommunicationsHandler {
     private static final String BASE_URL = "http://e-software.dk:8080/StorkServer_war/";
     private static final String LOGIN_URL = "login";
     private static final String REGISTER_URL = "register";
+    private static final String GET_USER_URL = "getUser";
     private static final String UPDATE_LOCATION_URL = "updateLocation";
     private final static AsyncHttpClient client = new AsyncHttpClient();
 
@@ -60,5 +62,10 @@ public class CommunicationsHandler {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void getUser(Map<String, String> params, ResponseHandlerInterface responseHandler){
+        RequestParams requestParams = new RequestParams(params);
+        get(BASE_URL+ GET_USER_URL, requestParams, responseHandler);
     }
 }
