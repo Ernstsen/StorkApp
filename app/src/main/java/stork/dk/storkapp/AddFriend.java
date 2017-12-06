@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -24,6 +25,7 @@ import stork.dk.storkapp.communicationObjects.UsersResponse;
  * @author Johannes
  */
 public class AddFriend extends AppCompatActivity {
+    private ListView usersList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,17 @@ public class AddFriend extends AppCompatActivity {
 
             }
         });
+        // BRUG NEDENSTÅENDE TIL AT FÅ FLERE VALGTE OBJEKTER
+        //SparseBooleanArray checkedItemPositions = usersList.getCheckedItemPositions();
+        //int itemCount = listView.getCount();
+
+        //for (int i = itemCount - 1; i >= 0; i--) {
+        //    if (checkedItemPositions.get(i)) {
+                    //Remove items here
+        //    }
+        //}
+        //checkedItemPositions.clear();
+        //adapter.notifyDataSetChanged();
 
     }
 
@@ -67,9 +80,10 @@ public class AddFriend extends AppCompatActivity {
             items.add(publicUserObject.getMail());
         }
 
-        ListView usersList = findViewById(R.id.users_list);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, items);
+        usersList = findViewById(R.id.users_list);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
         usersList.setAdapter(adapter);
+        usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
     private AppCompatActivity getActivity() {
