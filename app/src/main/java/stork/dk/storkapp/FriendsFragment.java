@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
@@ -50,9 +51,8 @@ public class FriendsFragment extends Fragment {
     private View rootView;
     private Integer userId;
     private String sessionId;
-    private List<Integer> friendsToRemove;
+    private List<Integer> selectedItems;
     private ArrayList<PublicUserObject> items;
-    private FriendChangeRequest req;
 
     @Nullable
     @Override
@@ -64,8 +64,7 @@ public class FriendsFragment extends Fragment {
         userId = args.getInt(Constants.CURRENT_USER_KEY);
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
-        req = new FriendChangeRequest();
-        friendsToRemove = new ArrayList<Integer>();
+        selectedItems = new ArrayList<Integer>();
 
         removeFriends = rootView.findViewById(R.id.removeFriends);
         addFriend = rootView.findViewById(R.id.addFriendButton);
@@ -77,10 +76,6 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        SharedPreferences sharedPref = getActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
-        req.setId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
-        req.setAction(FriendChangeRequest.ActionEnum.REMOVE);
 
 
         searchFieldInit();
@@ -98,18 +93,38 @@ public class FriendsFragment extends Fragment {
 
                 for (int i = 0; i < listView.getCount(); i++) {
                     if (checkedItemPos.get(i)) {
-                        getIdFromEmail(items.get(i));
+                        addItemToSelected(items.get(i));
                         items.remove(items.get(i));
                     }
                 }
                 removeFriends();
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
-                friendsToRemove.clear();
+                selectedItems.clear();
 
                 hideDeleteButton();
                 //Todo: maybe remove the below if it works w/o
                 checkedCount = listView.getCheckedItemCount();
+            }
+        });
+
+        createGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SparseBooleanArray checkedItemPos = listView.getCheckedItemPositions();
+
+                for (int i = 0; i < listView.getCount(); i++) {
+                    if (checkedItemPos.get(i)) {
+                        addItemToSelected(items.get(i));
+                        items.remove(items.get(i));
+                    }
+                }
+                removeFriends();
+                checkedItemPos.clear();
+                adapter.notifyDataSetChanged();
+                selectedItems.clear();
+
+                hideDeleteButton();
             }
         });
 
@@ -212,17 +227,27 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    private void getIdFromEmail(PublicUserObject user) {
-        friendsToRemove.add(user.getUserId());
+    private void addItemToSelected(PublicUserObject user) {
+        selectedItems.add(user.getUserId());
+    }
+
+    public void createGroup() {
+//        req.setFriends(selectedItems);
+
     }
 
     public void removeFriends() {
-        req.setFriends(friendsToRemove);
+        FriendChangeRequest req = new FriendChangeRequest();
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
+        req.setId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
+        req.setAction(FriendChangeRequest.ActionEnum.REMOVE);
+        req.setFriends(selectedItems);
 
         CommunicationsHandler.changeFriends(getActivity(), req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if (!friendsToRemove.isEmpty()) {
+                if (!selectedItems.isEmpty()) {
                     Toast.makeText(getActivity(), "Friends Removed.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -230,11 +255,15 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
-                    CommunicationErrorHandling.handle403(thisInstance);
+                    CommunicationErrorHandling.handle403(getFriendsFragmentActivity());
                 } else if (statusCode == 404 || statusCode == 500) {
                     Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private FragmentActivity getFriendsFragmentActivity() {
+        return getActivity();
     }
 }
