@@ -16,6 +16,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
@@ -49,11 +50,8 @@ public class AddFriend extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if (statusCode == 403) {
-                    Intent login = new Intent(getActivity(), AddFriend.class);
-                    startActivity(login);
-                    finish();
-                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                if(statusCode == 403){
+                    CommunicationErrorHandling.handle403(getActivity());
                 }
 
             }

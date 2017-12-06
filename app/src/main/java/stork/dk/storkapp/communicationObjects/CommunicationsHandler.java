@@ -1,6 +1,9 @@
 package stork.dk.storkapp.communicationObjects;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -11,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
+import stork.dk.storkapp.LoginOrSignup;
 
 /**
  * @author Johannes, Mathias, Morten

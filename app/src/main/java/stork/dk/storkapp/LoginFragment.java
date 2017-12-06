@@ -19,11 +19,10 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.LoginRequest;
-
-import static stork.dk.storkapp.R.style.Theme_AppCompat_Dialog_Alert;
 
 /**
  * @author Mathias, Johannes
@@ -77,10 +76,9 @@ public class LoginFragment extends Fragment {
         rememberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked) {
+                if (isChecked) {
                     editor.putBoolean(Constants.REMEMBER_ME_CHECK, true);
-                }
-                else {
+                } else {
                     editor.putBoolean(Constants.REMEMBER_ME_CHECK, false);
                 }
                 editor.apply();
@@ -139,10 +137,11 @@ public class LoginFragment extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    if (statusCode == 404) {
+                    if (statusCode == 403) {
+                        CommunicationErrorHandling.handle403(getActivity());
+                    } else if (statusCode == 404) {
                         Toast.makeText(getActivity(), "No match for provided email and password", Toast.LENGTH_LONG).show();
-                    }
-                    if (statusCode == 500){
+                    } else if (statusCode == 500) {
                         Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                     }
                     clicked = false;

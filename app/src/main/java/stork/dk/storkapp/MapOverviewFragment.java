@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -25,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -46,8 +46,10 @@ import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
+import stork.dk.storkapp.communicationObjects.GroupsResponse;
 import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
 import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
@@ -83,9 +85,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
         Bundle args = getArguments();
         userId = args.getInt(Constants.CURRENT_USER_KEY);
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
-
-        retrieveGroupsAndFriendsFromRESTService();
-        populateFriendsSpinner();
 
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
@@ -167,19 +166,14 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
         CommunicationsHandler.updateLocation(getActivity(), updateLocationRequest, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(getActivity(), "onSuccess - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getActivity(), "onSuccess - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if(statusCode == 403){
-                    Intent login = new Intent();
-                    startActivity(login);
-                    getActivity().finish();
-                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                    CommunicationErrorHandling.handle403(getActivity());
                 }
-                // Try again?
-                Toast.makeText(getActivity(), "onFailure - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -190,9 +184,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
         createPermissionListener();
 
-        placeMarkersOnMap(friends);
-
-        friendsSpinnerOnItemSelectedListener();
+        retrieveGroupsAndFriendsFromRESTService();
     }
 
     private void placeMarkersOnMap(List<Friend> friends) {
@@ -297,7 +289,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
                     markersForMapZoom.add(markers.get(selectedItem.getId()));
                 }
 
-                zoomMap(markersForMapZoom, 200);
+                if (!markersForMapZoom.isEmpty()) zoomMap(markersForMapZoom, 200);
             }
 
             @Override
@@ -309,7 +301,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
     private void retrieveGroupsAndFriendsFromRESTService() {
         // Temporary simulation of retrieval
-        stork.dk.storkapp.communicationObjects.helperObjects.Location johannesLocation =
+        /*stork.dk.storkapp.communicationObjects.helperObjects.Location johannesLocation =
                 new stork.dk.storkapp.communicationObjects.helperObjects.Location(56.150312, 10.204725, 0);
         Friend johannes = new Friend(1, "Johannes", johannesLocation);
 
@@ -340,6 +332,44 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
         groups = new ArrayList<>();
         groups.add(group1);
-        groups.add(group2);
+        groups.add(group2);*/
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("sessionId", sessionId);
+        params.put("userId", String.valueOf(userId));
+
+        groups = new ArrayList<>();
+        friends = new ArrayList<>();
+
+        CommunicationsHandler.getGroups(params, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
+
+                //Toast.makeText(getActivity(), new String(responseBody), Toast.LENGTH_LONG).show();
+
+                for (Group group : resp.getGroups()) {
+                    if (!group.getFriends().isEmpty()) {
+                        groups.add(group);
+                        for (Friend friend : group.getFriends()) {
+                            friends.add(friend);
+                        }
+                    }
+                }
+
+                placeMarkersOnMap(friends);
+
+                populateFriendsSpinner();
+
+                friendsSpinnerOnItemSelectedListener();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if(statusCode == 403){
+                    CommunicationErrorHandling.handle403(getActivity());
+                }
+            }
+        });
     }
 }

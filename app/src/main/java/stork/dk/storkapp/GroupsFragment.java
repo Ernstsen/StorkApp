@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.GroupsResponse;
@@ -57,7 +58,9 @@ public class GroupsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getActivity(), "FUCK", Toast.LENGTH_LONG).show();
+                if(statusCode == 403){
+                    CommunicationErrorHandling.handle403(getActivity());
+                }
             }
         });
 

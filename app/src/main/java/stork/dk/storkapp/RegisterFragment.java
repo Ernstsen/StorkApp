@@ -17,6 +17,7 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.RegisterUserRequest;
@@ -113,7 +114,9 @@ public class RegisterFragment extends Fragment {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    if (statusCode == 404) {
+                    if (statusCode == 403) {
+                        CommunicationErrorHandling.handle403(getActivity());
+                    } else if (statusCode == 404) {
                         Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_LONG).show();
                     }
                     clicked = false;

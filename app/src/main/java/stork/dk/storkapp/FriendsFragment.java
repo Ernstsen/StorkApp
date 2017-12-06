@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
@@ -106,11 +107,8 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if (statusCode == 403) {
-                    Intent login = new Intent(getActivity(), AddFriend.class);
-                    startActivity(login);
-                    getActivity().finish();
-                    Toast.makeText(getActivity(), "Error connecting to server.", Toast.LENGTH_LONG).show();
+                if(statusCode == 403){
+                    CommunicationErrorHandling.handle403(getActivity());
                 } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
                 } else {
