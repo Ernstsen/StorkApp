@@ -28,10 +28,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -262,16 +264,23 @@ public class MapOverviewFragment extends Fragment {
 
     private void createPermissionListener() {
         Dexter.withActivity(getActivity())
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(new PermissionListener() {
+                .withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.INTERNET
+                )
+                .withListener(new MultiplePermissionsListener() {
                     @SuppressLint("MissingPermission")
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        googleMap.setMyLocationEnabled(true);
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        boolean allPermissionsGranted = report.areAllPermissionsGranted();
+                        if (allPermissionsGranted) {
+                            googleMap.setMyLocationEnabled(true);
+                        } else {
+                            System.exit(0);
+                        }
                     }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        System.exit(0);
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, final PermissionToken token) {
                         new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.title_location_permission)
                                 .setMessage(R.string.text_location_permission)
