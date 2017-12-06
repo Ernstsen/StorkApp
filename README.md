@@ -157,6 +157,41 @@ Adds or removes a friend
 }
 ``` 
 
+### Change User
+Adds or removes a friend
+ 
+ | key    |               value               |
+ |:------:| :-------------------------------- |
+ | Type   | POST                              |
+ | Path   | /changeUser                       |
+ | Params | None                              |
+ | Body   | Json object ChangeUserRequest     |
+ | Resp   | Json object ChangeUserRequest     |
+ | Code   | 201/404/500/                      |
+ 
+ 
+#### Example body:
+```json
+{
+  "sessionId": "Sesh",
+  "userId": 2,
+  "name": "Morten",
+  "password": "Kode",
+  "newPassword": "nyKode"
+}
+``` 
+#### Example response:
+```json
+{
+  "sessionId": "NYSesh",
+  "userId": 2,
+  "name": "Morten",
+  "password": "nyKode",
+  "newPassword": ""
+}
+``` 
+
+
 ### Get User
 Gets the user information from the server
  
