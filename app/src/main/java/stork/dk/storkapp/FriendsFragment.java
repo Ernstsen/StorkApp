@@ -1,6 +1,8 @@
 package stork.dk.storkapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -29,6 +31,7 @@ import cz.msebera.android.httpclient.Header;
 import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
+import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
 
@@ -37,17 +40,19 @@ import stork.dk.storkapp.communicationObjects.UsersResponse;
  */
 
 public class FriendsFragment extends Fragment {
-
+    private SettingsFragment thisInstance;
     private FloatingActionButton addFriend;
     private FloatingActionButton removeFriends;
     private FloatingActionButton createGroup;
     private ListView listView;
-    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<PublicUserObject> adapter;
     private int checkedCount = 0;
     private View rootView;
     private Integer userId;
     private String sessionId;
-
+    private List<Integer> friendsToRemove;
+    private ArrayList<PublicUserObject> items;
+    private FriendChangeRequest req;
 
     @Nullable
     @Override
@@ -59,6 +64,8 @@ public class FriendsFragment extends Fragment {
         userId = args.getInt(Constants.CURRENT_USER_KEY);
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
+        req = new FriendChangeRequest();
+        friendsToRemove = new ArrayList<Integer>();
 
         removeFriends = rootView.findViewById(R.id.removeFriends);
         addFriend = rootView.findViewById(R.id.addFriendButton);
@@ -70,6 +77,11 @@ public class FriendsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
+        req.setId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
+        req.setAction(FriendChangeRequest.ActionEnum.REMOVE);
+
 
         searchFieldInit();
 
@@ -82,20 +94,22 @@ public class FriendsFragment extends Fragment {
         removeFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SparseBooleanArray checkedItemPos = listView.getCheckedItemPositions();
 
-                SparseBooleanArray checkedItemPositions = listView.getCheckedItemPositions();
-                int itemCount = listView.getCount();
-
-                for (int i = itemCount - 1; i >= 0; i--) {
-                    if (checkedItemPositions.get(i)) {
-                        //TODO: REMOVE ITEMS
-                        hideDeleteButton();
+                for (int i = 0; i < listView.getCount(); i++) {
+                    if (checkedItemPos.get(i)) {
+                        getIdFromEmail(items.get(i));
+                        items.remove(items.get(i));
                     }
                 }
+                removeFriends();
+                checkedItemPos.clear();
+                adapter.notifyDataSetChanged();
+                friendsToRemove.clear();
+
+                hideDeleteButton();
                 //Todo: maybe remove the below if it works w/o
                 checkedCount = listView.getCheckedItemCount();
-                checkedItemPositions.clear();
-                adapter.notifyDataSetChanged();
             }
         });
 
@@ -129,21 +143,19 @@ public class FriendsFragment extends Fragment {
         });
     }
 
-    private void populate(List<String> items) {
+    private void populate(List<PublicUserObject> items) {
         if (getActivity() != null) {
-            adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
+            adapter = new ArrayAdapter<PublicUserObject>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         }
     }
 
     private void populateWithUsers(List<PublicUserObject> users) {
-        ArrayList<String> strings = new ArrayList<>();
-        for (PublicUserObject user : users) {
-            strings.add(user.getName());
-        }
-        Collections.sort(strings);
-        populate(strings);
+        items = new ArrayList<>();
+        items.addAll(users);
+        Collections.sort(items);
+        populate(items);
     }
 
     public void setShowAndHideListener() {
@@ -198,5 +210,31 @@ public class FriendsFragment extends Fragment {
         if (isVisibleToUser) {
             onResume();
         }
+    }
+
+    private void getIdFromEmail(PublicUserObject user) {
+        friendsToRemove.add(user.getUserId());
+    }
+
+    public void removeFriends() {
+        req.setFriends(friendsToRemove);
+
+        CommunicationsHandler.changeFriends(getActivity(), req, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                if (!friendsToRemove.isEmpty()) {
+                    Toast.makeText(getActivity(), "Friends Removed.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if (statusCode == 403) {
+                    CommunicationErrorHandling.handle403(thisInstance);
+                } else if (statusCode == 404 || statusCode == 500) {
+                    Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

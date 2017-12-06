@@ -1,9 +1,13 @@
 package stork.dk.storkapp.communicationObjects;
 
+import android.support.annotation.NonNull;
+
+import java.util.Collection;
+
 /**
  * @author Johannes Ernstsen
  */
-public class PublicUserObject {
+public class PublicUserObject implements Comparable {
     private int userId;
     private String name;
     private String mail;
@@ -42,7 +46,13 @@ public class PublicUserObject {
     }
 
     @Override
-    public String toString(){
-        return mail;
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        PublicUserObject obj = (PublicUserObject) o;
+        return name.compareTo(obj.getName());
     }
 }

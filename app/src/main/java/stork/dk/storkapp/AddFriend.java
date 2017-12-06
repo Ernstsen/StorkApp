@@ -38,9 +38,7 @@ public class AddFriend extends AppCompatActivity {
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
     private int user;
-    private SharedPreferences sharedPref;
     private List<Integer> friendsToAdd;
-    private HashMap<String, String> params;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +47,8 @@ public class AddFriend extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        friendsToAdd = new ArrayList<Integer>();
-        params = new HashMap<String, String>();
-        params.put("sessionId", sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
-        params.put("userId", String.valueOf(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0)));
+        SharedPreferences sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        friendsToAdd = new ArrayList<>();
 
         req = new FriendChangeRequest();
         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
@@ -99,9 +94,8 @@ public class AddFriend extends AppCompatActivity {
     private void populate(UsersResponse usersResponse) {
         items = new ArrayList<>();
         items.addAll(usersResponse.getUsers());
-
         usersList = findViewById(R.id.users_list);
-        adapter = new ArrayAdapter<PublicUserObject>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
+        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
         usersList.setAdapter(adapter);
         usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
@@ -120,7 +114,7 @@ public class AddFriend extends AppCompatActivity {
         CommunicationsHandler.changeFriends(this, req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(!friendsToAdd.isEmpty()) {
+                if (!friendsToAdd.isEmpty()) {
                     Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
                 }
             }
