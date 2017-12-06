@@ -6,11 +6,14 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -33,12 +36,11 @@ import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
 import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
 
 /**
- * @author Johannes, morten
+ * @author Johannes, Mathias, Morten
  */
 public class AddFriendsActivity extends AppCompatActivity {
     private ListView usersList;
     private FloatingActionButton fab;
-
     private FriendsAdapter adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
@@ -51,6 +53,7 @@ public class AddFriendsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_friend);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         fab = findViewById(R.id.finish_fab);
 
@@ -86,7 +89,6 @@ public class AddFriendsActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     private void populateListView(UsersResponse usersResponse) {
@@ -94,6 +96,7 @@ public class AddFriendsActivity extends AppCompatActivity {
         usersList = findViewById(R.id.users_list);
         adapter = new FriendsAdapter(getActivity(), items);
         usersList.setAdapter(adapter);
+        searchFieldInit();
     }
 
     private List<PublicUserObject> deserializeFriendsJson(String friendsJson) {
@@ -153,6 +156,25 @@ public class AddFriendsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public void searchFieldInit() {
+            EditText searchField = (EditText) findViewById(R.id.searchFieldAddFriend);
+            usersList.setTextFilterEnabled(true);
+            searchField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+                }
+
+                @Override
+                public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+                    adapter.getFilter().filter(ag0);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
     }
 
 }

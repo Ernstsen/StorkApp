@@ -105,9 +105,8 @@ public class FriendsFragment extends Fragment {
                 adapter.notifyDataSetChanged();
                 selectedItems.clear();
 
-                hideDeleteButton();
-                //Todo: maybe remove the below if it works w/o
                 checkedCount = listView.getCheckedItemCount();
+                hideDeleteButton();
             }
         });
 
@@ -125,6 +124,7 @@ public class FriendsFragment extends Fragment {
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
 
+                checkedCount = listView.getCheckedItemCount();
                 hideDeleteButton();
             }
         });
@@ -291,7 +291,7 @@ public class FriendsFragment extends Fragment {
                 })
                 .show();
 
-
+        //TODO: Update Group ListView
     }
 
     public void removeFriends() {
