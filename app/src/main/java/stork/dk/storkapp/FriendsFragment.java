@@ -179,4 +179,12 @@ public class FriendsFragment extends Fragment {
             }
         });
     }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            adapter.notifyDataSetChanged();
+        }
+    }
 }

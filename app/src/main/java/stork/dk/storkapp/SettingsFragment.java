@@ -3,8 +3,6 @@ package stork.dk.storkapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -13,32 +11,22 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.ResponseHandlerInterface;
 
-import org.xml.sax.ErrorHandler;
-
-import java.io.IOException;
 import java.util.HashMap;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.HttpResponse;
-import cz.msebera.android.httpclient.client.ClientProtocolException;
-import cz.msebera.android.httpclient.client.ResponseHandler;
 import stork.dk.storkapp.communicationObjects.ChangeUserRequest;
 import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
-import stork.dk.storkapp.communicationObjects.LoginRequest;
-import stork.dk.storkapp.communicationObjects.RegisterUserRequest;
 import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
 
 
 /**
  * @author Mathias
  */
-public class Settings extends AppCompatActivity {
+public class SettingsFragment extends AppCompatActivity {
     private String username;
     private EditText nameField;
     private SharedPreferences sharedPref;
@@ -46,7 +34,7 @@ public class Settings extends AppCompatActivity {
     private EditText newPwField;
     private EditText matchPwField;
     private ChangeUserRequest req;
-    private Settings thisInstance;
+    private SettingsFragment thisInstance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,20 +61,19 @@ public class Settings extends AppCompatActivity {
         saveChanges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(oldPwField.getText().toString().equals("")){
+                    Toast.makeText(SettingsFragment.this, "Need password to save changes.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (!newPwField.getText().toString().equals("") && !newPwField.getText().toString().equals(matchPwField.getText().toString())) {
+                    Toast.makeText(SettingsFragment.this, "New Password doesn't match", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (!newPwField.getText().toString().equals("") && matchPwField.getText().toString().equals("")) {
+                    Toast.makeText(SettingsFragment.this, "New Password must be supplied twice", Toast.LENGTH_LONG).show();
+                } else {
                     doChanges();
-//                if(oldPwField.getText().toString().equals("")){
-//                    Toast.makeText(Settings.this, "Need password to save changes.", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                if (!newPwField.getText().toString().equals("") && !newPwField.getText().toString().equals(matchPwField.getText().toString())) {
-//                    Toast.makeText(Settings.this, "New Password doesn't match", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                if (!newPwField.getText().toString().equals("") && matchPwField.getText().toString().equals("")) {
-//                    Toast.makeText(Settings.this, "New Password must be supplied twice", Toast.LENGTH_LONG).show();
-//                } else {
-//                    doChanges();
-//                }
+                }
             }
         });
 
@@ -115,7 +102,7 @@ public class Settings extends AppCompatActivity {
                 editor.putString(Constants.CURRENT_SESSION_KEY, user.getSessionId());
                 editor.putString(Constants.REMEMBER_ME_PASSWORD, user.getPassword());
                 editor.apply();
-                Toast.makeText(Settings.this, "Changes Saved.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(SettingsFragment.this, "Changes Saved.", Toast.LENGTH_SHORT).show();
                 finish();
             }
 
@@ -124,7 +111,7 @@ public class Settings extends AppCompatActivity {
                 if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(thisInstance);
                 } else if (statusCode == 404 || statusCode == 500) {
-                    Toast.makeText(Settings.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingsFragment.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -150,7 +137,7 @@ public class Settings extends AppCompatActivity {
                 if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(thisInstance);
                 } else if (statusCode == 404 || statusCode == 500) {
-                    Toast.makeText(Settings.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SettingsFragment.this, "Something went wrong.", Toast.LENGTH_SHORT).show();
                 }
             }
         });

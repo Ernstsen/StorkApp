@@ -1,9 +1,6 @@
 package stork.dk.storkapp.communicationObjects;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -14,7 +11,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import cz.msebera.android.httpclient.entity.StringEntity;
-import stork.dk.storkapp.LoginOrSignup;
 
 /**
  * @author Johannes, Mathias, Morten
@@ -30,6 +26,7 @@ public class CommunicationsHandler {
     private static final String GET_GROUPS_URL = "getGroups";
     private static final String GET_USERS_URL = "getUsers";
     private static final String CHANGE_USER_URL = "changeUser";
+    private static final String CHANGE_FRIEND_URL = "friend";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
     private final static Gson gson = new Gson();
@@ -90,11 +87,19 @@ public class CommunicationsHandler {
         get(BASE_URL + GET_USERS_URL, new RequestParams(), responseHandler);
     }
 
-    public static void editUser(Context context, ChangeUserRequest request, ResponseHandlerInterface responseHandler) {
-        String payload = gson.toJson(request);
+    public static void editUser(Context context, ChangeUserRequest req, ResponseHandlerInterface responseHandler) {
+        String payload = gson.toJson(req);
         try {
-            System.out.println(payload);
             post(context, BASE_URL + CHANGE_USER_URL, payload, responseHandler);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void changeFriends(Context context, FriendChangeRequest req, ResponseHandlerInterface responseHandler){
+        String payload = gson.toJson(req);
+        try {
+            post(context, BASE_URL + CHANGE_FRIEND_URL, payload, responseHandler);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

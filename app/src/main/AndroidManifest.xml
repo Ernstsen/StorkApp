@@ -35,7 +35,7 @@
             android:label="@string/title_activity_login_or_signup"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Settings"
+            android:name=".SettingsFragment"
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity

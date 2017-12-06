@@ -1,6 +1,5 @@
 package stork.dk.storkapp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -98,6 +97,8 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+
+        //TODO: Name of logged in user in this dropdown AND fingerprint in SettingsFragment
     }
 
     @Override
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            Intent settings = new Intent(this, Settings.class);
+            Intent settings = new Intent(this, SettingsFragment.class);
             startActivity(settings);
         }
         if (id == R.id.action_logout) {
