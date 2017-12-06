@@ -72,7 +72,6 @@ public class MapOverviewFragment extends Fragment {
     private StandardLocationSource standardLocationSource;
 
     private List<Group> groups;
-    private List<Friend> friends;
     private Map<Integer, Marker> markers;
 
     private int userId;
@@ -356,12 +355,12 @@ public class MapOverviewFragment extends Fragment {
         params.put("userId", String.valueOf(userId));
 
         groups = new ArrayList<>();
-        friends = new ArrayList<>();
 
         CommunicationsHandler.getGroups(params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
+                Set<Friend> friends = new HashSet<>();
 
                 for (Group group : resp.getGroups()) {
                     if (!group.getFriends().isEmpty()) {
@@ -372,7 +371,7 @@ public class MapOverviewFragment extends Fragment {
                     }
                 }
 
-                placeMarkersOnMap(friends);
+                placeMarkersOnMap(new ArrayList<Friend>(friends));
                 populateFriendsSpinner();
                 friendsSpinnerOnItemSelectedListener();
             }
