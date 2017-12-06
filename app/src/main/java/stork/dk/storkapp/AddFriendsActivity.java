@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -30,16 +32,14 @@ import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
 import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
 
 /**
- * @author Johannes
+ * @author Johannes, morten
  */
 public class AddFriendsActivity extends AppCompatActivity {
-    private SettingsFragment thisInstance;
     private ListView usersList;
-    private ArrayAdapter<PublicUserObject> adapter;
+    private FriendsAdapter adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
-    private int user;
-    private List<Integer> friendsToAdd;
+    private int userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +49,20 @@ public class AddFriendsActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         SharedPreferences sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
-        friendsToAdd = new ArrayList<>();
+        userId = sharedPref.getInt(Constants.CURRENT_USER_KEY, 0);
+
+        // Should get list of current friends via sharedPreferences from FriendsFragment
 
         req = new FriendChangeRequest();
         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
-        req.setId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
+        req.setId(userId);
         req.setAction(FriendChangeRequest.ActionEnum.ADD);
 
         CommunicationsHandler.getUsers(new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 UsersResponse usersResponse = new Gson().fromJson(new String(responseBody), UsersResponse.class);
-                populate(usersResponse);
+                populateListView(usersResponse);
             }
 
             @Override
@@ -76,47 +78,56 @@ public class AddFriendsActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SparseBooleanArray checkedItemPos = usersList.getCheckedItemPositions();
-
-                for (int i = 0; i < usersList.getCount(); i++) {
-                    if (checkedItemPos.get(i)) {
-                        getIdFromEmail(items.get(i));
-                    }
-                }
-                addFriends();
-                checkedItemPos.clear();
-                adapter.notifyDataSetChanged();
-                friendsToAdd.clear();
-                getActivity().finish();
+                List<PublicUserObject> friendsToAdd = adapter.getCheckedObjects();
+                addFriends(friendsToAdd);
             }
         });
     }
 
-    private void populate(UsersResponse usersResponse) {
-        items = new ArrayList<>();
-        items.addAll(usersResponse.getUsers());
-
+    private void populateListView(UsersResponse usersResponse) {
+        items = new ArrayList<>(filerUsers(usersResponse.getUsers()));
         usersList = findViewById(R.id.users_list);
         adapter = new FriendsAdapter(getActivity(), items);
         usersList.setAdapter(adapter);
-        usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+    }
+
+    private List<PublicUserObject> filerUsers(List<PublicUserObject> userObjects) {
+        List<PublicUserObject> filteredUserObjects = new ArrayList<>();
+
+        for (PublicUserObject userObject : userObjects) {
+            if (userObject.getUserId() != userId) {
+                filteredUserObjects.add(userObject);
+            }
+        }
+
+        return filteredUserObjects;
     }
 
     private AppCompatActivity getActivity() {
         return this;
     }
 
-    private void getIdFromEmail(PublicUserObject user) {
-        friendsToAdd.add(user.getUserId());
+    private List<Integer> getIdsFromUserObjects(List<PublicUserObject> userObjects) {
+        List<Integer> ids = new ArrayList<>();
+
+        for (PublicUserObject userObject : userObjects) {
+            ids.add(userObject.getUserId());
+        }
+
+        return ids;
     }
 
-    public void addFriends() {
-        req.setFriends(friendsToAdd);
+    private void addFriends(final List<PublicUserObject> friendsToAdd) {
+        final List<Integer> idsOfFriendsToAdd = getIdsFromUserObjects(friendsToAdd);
+        req.setFriends(idsOfFriendsToAdd);
 
         CommunicationsHandler.changeFriends(this, req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(!friendsToAdd.isEmpty()) {
+                if(!idsOfFriendsToAdd.isEmpty()) {
+                    items.removeAll(friendsToAdd);
+                    adapter.notifyDataSetChanged();
+                    getActivity().finish();
                     Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -124,7 +135,7 @@ public class AddFriendsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
-                    CommunicationErrorHandling.handle403(thisInstance);
+                    CommunicationErrorHandling.handle403(getActivity());
                 } else if (statusCode == 404 || statusCode == 500) {
                     Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_SHORT).show();
                 }
