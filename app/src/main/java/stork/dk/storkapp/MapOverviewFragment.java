@@ -6,7 +6,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +62,7 @@ import stork.dk.storkapp.friendsSpinner.Traceable;
 /**
  * @author morten
  */
-public class MapOverviewFragment extends Fragment implements OnMapReadyCallback {
+public class MapOverviewFragment extends Fragment {
     private Spinner findFriendsSpinner;
     private MapView mapView;
 
@@ -72,6 +75,10 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
     private int userId;
     private String sessionId;
+
+    private Handler requestServerAtIntervalHandler = new Handler();
+    private int REQUEST_SERVER_INTERVAL = 60 * 1000; // 60 secs
+    private int REQUEST_SERVER_INTERVAL_ACTIVE = 1;
 
     // Constants for location tracking
     private final LocationAccuracy TRACKING_ACCURACY = LocationAccuracy.HIGH;
@@ -91,15 +98,35 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap = map;
+                startLocationUpdates();
+                createPermissionListener();
+                startRequestingServerOnInterval();
+            }
+        });
 
         return rootView;
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+                startRequestingServerOnInterval();
+            }
+        } else {
+            stopRequestingServerOnInterval();
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startLocationUpdates();
     }
 
     @Override
@@ -155,9 +182,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
     }
 
     private void updateUserLocationAtRestService(Location location) {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-        long now = timestamp.getTime();
+        long now = Utility.timestamp.getTime();
 
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
@@ -176,14 +201,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
                 }
             }
         });
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        googleMap = map;
-
-        createPermissionListener();
-        retrieveGroupsAndFriendsFromRESTService();
     }
 
     private void placeMarkersOnMap(List<Friend> friends) {
@@ -354,4 +371,25 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
             }
         });
     }
+
+    private void startRequestingServerOnInterval() {
+        requestServerAtIntervalHandlerTask.run();
+    }
+
+    private void stopRequestingServerOnInterval() {
+        if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            requestServerAtIntervalHandler.removeMessages(REQUEST_SERVER_INTERVAL_ACTIVE);
+        }
+        requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
+    }
+
+    Runnable requestServerAtIntervalHandlerTask = new Runnable()
+    {
+        @Override
+        public void run() {
+            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
+            retrieveGroupsAndFriendsFromRESTService();
+            requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
+        }
+    };
 }
