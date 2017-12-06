@@ -1,6 +1,8 @@
 package stork.dk.storkapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +11,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
@@ -29,6 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import stork.dk.storkapp.communicationObjects.ChangeGroupRequest;
 import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
@@ -116,10 +120,9 @@ public class FriendsFragment extends Fragment {
                 for (int i = 0; i < listView.getCount(); i++) {
                     if (checkedItemPos.get(i)) {
                         addItemToSelected(items.get(i));
-                        items.remove(items.get(i));
                     }
                 }
-                removeFriends();
+                createGroup();
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
                 selectedItems.clear();
@@ -232,7 +235,54 @@ public class FriendsFragment extends Fragment {
     }
 
     public void createGroup() {
-//        req.setFriends(selectedItems);
+
+        final EditText input = new EditText(getActivity());
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Name the group")
+                .setView(input)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        return;
+                    }
+                })
+                .setPositiveButton("Create Group", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ChangeGroupRequest req = new ChangeGroupRequest();
+                        SharedPreferences sharedPref = getFriendsFragmentActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+
+                        req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, null));
+                        req.setUserId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
+                        req.setAdd(selectedItems);
+                        req.setName(input.getText().toString());
+
+                        CommunicationsHandler.changeGroup(getFriendsFragmentActivity(), req, new AsyncHttpResponseHandler() {
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                if (statusCode == 201) {
+                                    Toast.makeText(getFriendsFragmentActivity(), "Group created!", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                                if (statusCode == 403) {
+                                    CommunicationErrorHandling.handle403(getFriendsFragmentActivity());
+                                } else {
+                                    Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }
+                })
+                .show();
+
 
     }
 
