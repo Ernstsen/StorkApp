@@ -113,6 +113,18 @@ public class MapOverviewFragment extends Fragment {
     }
 
     @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+                startRequestingServerOnInterval();
+            }
+        } else {
+            stopRequestingServerOnInterval();
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -121,24 +133,12 @@ public class MapOverviewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-        if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
-            startRequestingServerOnInterval();
-        }
-        Log.d("THEAPP", "onResume() CALLED");
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        stopRequestingServerOnInterval();
-        Log.d("THEAPP", "onPause() CALLED");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d("THEAPP", "onStop() CALLED");
     }
 
     @Override
@@ -349,8 +349,6 @@ public class MapOverviewFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
 
-                Log.d("THEAPP", new String(responseBody));
-
                 for (Group group : resp.getGroups()) {
                     if (!group.getFriends().isEmpty()) {
                         groups.add(group);
@@ -379,7 +377,6 @@ public class MapOverviewFragment extends Fragment {
     }
 
     private void stopRequestingServerOnInterval() {
-        Log.d("THEAPP", "requestServerAtIntervalHandlerTask stopped");
         if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
             requestServerAtIntervalHandler.removeMessages(REQUEST_SERVER_INTERVAL_ACTIVE);
         }
@@ -390,7 +387,6 @@ public class MapOverviewFragment extends Fragment {
     {
         @Override
         public void run() {
-            Log.d("THEAPP", "requestServerAtIntervalHandlerTask started");
             requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
             retrieveGroupsAndFriendsFromRESTService();
             requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
