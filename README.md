@@ -16,7 +16,7 @@ Android application for the dIntDes Stork project
  | key    |            value            |
  |:------:| :---------------------------|
  | Type   | POST                        |
- | Path   | /loginRequest               |
+ | Path   | /login                      |
  | Params | None                        |
  | Body   | Json object LoginRequest    |
  | Resp   | Json object LoginRequest    |
@@ -191,6 +191,71 @@ Adds or removes a friend
 }
 ``` 
 
+### Change group activation status
+A****ctivates or Deactivates a group 
+ 
+ | key    |                     value                    |
+ |:------:| :------------------------------------------- |
+ | Type   | POST                                         |
+ | Path   | /changeGroupActivation                       |
+ | Params | None                                         |
+ | Body   | Json object GroupChangeActivationRequest     |
+ | Code   | 201/404/500/                                 |
+ 
+ 
+#### Example body:
+```json
+{
+  "userId": 1,
+  "sessionId": "f373e354-ab5f-41bc-8905-14e4dfd5f9ef",
+  "add": [
+    1,
+    2
+  ],
+  "remove": [
+    2,
+    3
+  ]
+}
+``` 
+
+### Change group 
+ Create or update group
+ 
+ | key    |                     value                    |
+ |:------:| :------------------------------------------- |
+ | Type   | POST                                         |
+ | Path   | /changeGroup                                 |
+ | Params | None                                         |
+ | Body   | Json object ChangeGroupRequest               |
+ | Code   | 201/403/404/500/                                 |
+ 
+ 
+#### Example body 1:
+```json
+{
+  "id": 0,
+  "name": "Min første gruppe",
+  "userId": 1,
+  "sessionId": "65a3ca2a-e2ee-4040-91a8-db8581a75e4c",
+  "add": [
+    2,
+    3,
+    4
+  ]
+}
+``` 
+#### Example body 2:
+```json
+{
+  "id": 3,
+  "userId": 1,
+  "sessionId": "65a3ca2a-e2ee-4040-91a8-db8581a75e4c",
+  "remove": [
+    4
+  ]
+}
+``` 
 
 ### Get User
 Gets the user information from the server
@@ -201,7 +266,7 @@ Gets the user information from the server
  | Path   | /getUser                               |
  | Params | sessionId, userId                      |
  | Resp   | Json object UserObject                 |
- | Code   | 200/404/500/                           |
+ | Code   | 200/403/404/500/                           |
  
  #### Example Response:
 ```json
@@ -215,71 +280,33 @@ Gets the user information from the server
 ``` 
  
  
-### Get Groups
-Gets all groups and its members excluding the user himself
+### Get Locations
+Gets locations for all group members
 
  | key    |                  value                 |
  |:------:| :------------------------------------- |
  | Type   | GET                                    |
- | Path   | /getGroups                             |
+ | Path   | /getLocations                          |
  | Params | sessionId, userId                      |
  | Resp   | Json object LocationsResponse          |
  | Code   | 200/404/500/                           |
  
   #### Example Response:
  ```json
-{
-  "groups":[
-    {
-      "groupId":1,
-      "name":"Group 1",
-      "friends":[
-        {
-          "userId":3,
-          "name":"Søby",
-          "location":{
-            "longtitude":3.8,
-            "lattitude":4.5,
-            "timeStamp":1512050488140
-          }
-        },
-        {
-          "userId":2,
-          "name":"Morten",
-          "location":{
-            "longtitude":1.7,
-            "lattitude":2.3,
-            "timeStamp":1512050488140
-          }
-        }
-      ]
-    },
-    {
-      "groupId":2,
-      "name":"Group 2",
-      "friends":[
-        {
-          "userId":1,
-          "name":"Johannes",
-          "location":{
-            "longtitude":3.8,
-            "lattitude":4.5,
-            "timeStamp":1512050488140
-          }
-        },
-        {
-          "userId":2,
-          "name":"Morten",
-          "location":{
-            "longtitude":1.7,
-            "lattitude":2.3,
-            "timeStamp":1512050488140
-          }
-        }
-      ]
-    }
-  ]
-}
+ {
+   "locations": {
+     "Søby": {
+       "longtitude": 3.8,
+       "lattitude": 4.5,
+       "timeStamp": 1512050488140
+     },
+     "Morten": {
+       "longtitude": 1.7,
+       "lattitude": 2.3,
+       "timeStamp": 1512050488140
+     }
+   }
+ }
  ``` 
  
 ### Get Friends

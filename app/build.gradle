@@ -39,4 +39,6 @@ dependencies {
     compile 'com.karumi:dexter:4.2.0'
     compile 'io.nlopez.smartlocation:library:3.3.3'
     compile 'com.google.maps.android:android-maps-utils:0.5+'
+    compile 'org.jetbrains:annotations-java5:15.0'
+    compile 'org.jetbrains:annotations-java5:15.0'
 }
