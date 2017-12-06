@@ -60,7 +60,6 @@ public class FriendsFragment extends Fragment {
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
 
-
         removeFriends = rootView.findViewById(R.id.removeFriends);
         addFriend = rootView.findViewById(R.id.addFriendButton);
         createGroup = rootView.findViewById(R.id.createGroup);
@@ -118,7 +117,7 @@ public class FriendsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
@@ -131,7 +130,7 @@ public class FriendsFragment extends Fragment {
     }
 
     private void populate(List<String> items) {
-        if(getActivity() != null) {
+        if (getActivity() != null) {
             adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
             listView.setAdapter(adapter);
             listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
@@ -147,7 +146,7 @@ public class FriendsFragment extends Fragment {
         populate(strings);
     }
 
-    public void setShowAndHideListener(){
+    public void setShowAndHideListener() {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -172,8 +171,8 @@ public class FriendsFragment extends Fragment {
         createGroup.setVisibility(View.INVISIBLE);
     }
 
-    public void searchFieldInit(){
-        if(getActivity() != null) {
+    public void searchFieldInit() {
+        if (getActivity() != null) {
             EditText searchField = (EditText) rootView.findViewById(R.id.searchField);
             listView.setTextFilterEnabled(true);
             searchField.addTextChangedListener(new TextWatcher() {
