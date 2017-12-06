@@ -45,7 +45,6 @@ import stork.dk.storkapp.communicationObjects.UsersResponse;
  */
 
 public class FriendsFragment extends Fragment {
-    private SettingsFragment thisInstance;
     private FloatingActionButton addFriend;
     private FloatingActionButton removeFriends;
     private FloatingActionButton createGroup;
@@ -133,6 +132,7 @@ public class FriendsFragment extends Fragment {
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addFriendsToSharedPreference(items);
                 Intent addFriend = new Intent(getActivity(), AddFriendsActivity.class);
                 addFriend.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(addFriend);
@@ -173,6 +173,15 @@ public class FriendsFragment extends Fragment {
         items.addAll(users);
         Collections.sort(items);
         populate(items);
+    }
+
+    private void addFriendsToSharedPreference(List<PublicUserObject> friends) {
+        SharedPreferences sharedPref = getActivity().getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        String friendsJson = new Gson().toJson(friends);
+        editor.putString(Constants.FRIENDS_LIST, friendsJson);
+        editor.apply();
     }
 
     public void setShowAndHideListener() {

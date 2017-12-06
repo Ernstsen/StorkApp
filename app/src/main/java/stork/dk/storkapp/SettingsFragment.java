@@ -34,7 +34,7 @@ public class SettingsFragment extends AppCompatActivity {
     private EditText newPwField;
     private EditText matchPwField;
     private ChangeUserRequest req;
-    private SettingsFragment thisInstance;
+    private SettingsFragment thisInstance = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
