@@ -114,7 +114,6 @@ public class LoginFragment extends Fragment {
             CommunicationsHandler.login(getActivity(), req, new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
                     LoginRequest resp = new Gson().fromJson(new String(responseBody), LoginRequest.class);
                     FragmentActivity activity = getActivity();
 

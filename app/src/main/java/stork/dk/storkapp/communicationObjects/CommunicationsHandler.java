@@ -29,6 +29,7 @@ public class CommunicationsHandler {
     private static final String GET_FRIENDS_URL = "getFriends";
     private static final String GET_GROUPS_URL = "getGroups";
     private static final String GET_USERS_URL = "getUsers";
+    private static final String CHANGE_USER_URL = "changeUser";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
     private final static Gson gson = new Gson();
@@ -87,5 +88,14 @@ public class CommunicationsHandler {
 
     public static void getUsers(ResponseHandlerInterface responseHandler) {
         get(BASE_URL + GET_USERS_URL, new RequestParams(), responseHandler);
+    }
+
+    public static void editUser(Context context, ChangeUserRequest request, ResponseHandlerInterface responseHandler) {
+        String payload = gson.toJson(request);
+        try {
+            post(context, BASE_URL + CHANGE_USER_URL, payload, responseHandler);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
     }
 }

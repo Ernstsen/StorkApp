@@ -5,12 +5,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -18,6 +21,7 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -34,22 +38,26 @@ import stork.dk.storkapp.communicationObjects.UsersResponse;
 
 public class FriendsFragment extends Fragment {
 
-    private FloatingActionButton removeFriends;
     private FloatingActionButton addFriend;
+    private FloatingActionButton removeFriends;
+    private FloatingActionButton createGroup;
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private int checkedCount = 0;
+    private View rootView;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+        rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         listView = rootView.findViewById(R.id.friendList);
 
         Bundle args = getArguments();
         Integer userId = args.getInt(Constants.CURRENT_USER_KEY);
         String sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
+
+        searchFieldInit();
 
         HashMap<String, String> params = new HashMap<>();
         params.put("sessionId", sessionId);
@@ -108,6 +116,8 @@ public class FriendsFragment extends Fragment {
             }
         });
 
+        createGroup = rootView.findViewById(R.id.createGroup);
+
         return rootView;
     }
 
@@ -122,6 +132,7 @@ public class FriendsFragment extends Fragment {
         for (PublicUserObject user : users) {
             strings.add(user.getName());
         }
+        Collections.sort(strings);
         populate(strings);
     }
 
@@ -141,10 +152,31 @@ public class FriendsFragment extends Fragment {
     public void showDeleteButton() {
         removeFriends.setVisibility(View.VISIBLE);
         addFriend.setVisibility(View.INVISIBLE);
+        createGroup.setVisibility(View.VISIBLE);
     }
 
     public void hideDeleteButton() {
         removeFriends.setVisibility(View.INVISIBLE);
         addFriend.setVisibility(View.VISIBLE);
+        createGroup.setVisibility(View.INVISIBLE);
+    }
+
+    public void searchFieldInit(){
+        EditText searchField = (EditText) rootView.findViewById(R.id.searchField);
+        listView.setTextFilterEnabled(true);
+        searchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+                adapter.getFilter().filter(ag0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
 }
