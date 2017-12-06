@@ -6,7 +6,9 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +36,7 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,7 +62,7 @@ import stork.dk.storkapp.friendsSpinner.Traceable;
 /**
  * @author morten
  */
-public class MapOverviewFragment extends Fragment implements OnMapReadyCallback {
+public class MapOverviewFragment extends Fragment {
     private Spinner findFriendsSpinner;
     private MapView mapView;
 
@@ -72,6 +75,10 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
     private int userId;
     private String sessionId;
+
+    private Handler requestServerAtIntervalHandler = new Handler();
+    private int REQUEST_SERVER_INTERVAL = 60 * 1000; // 60 secs
+    private int REQUEST_SERVER_INTERVAL_ACTIVE = 1;
 
     // Constants for location tracking
     private final LocationAccuracy TRACKING_ACCURACY = LocationAccuracy.HIGH;
@@ -91,7 +98,16 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
+
+        mapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap = map;
+                startLocationUpdates();
+                createPermissionListener();
+                startRequestingServerOnInterval();
+            }
+        });
 
         return rootView;
     }
@@ -99,19 +115,30 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startLocationUpdates();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            startRequestingServerOnInterval();
+        }
+        Log.d("THEAPP", "onResume() CALLED");
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        stopRequestingServerOnInterval();
+        Log.d("THEAPP", "onPause() CALLED");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d("THEAPP", "onStop() CALLED");
     }
 
     @Override
@@ -155,9 +182,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
     }
 
     private void updateUserLocationAtRestService(Location location) {
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-
-        long now = timestamp.getTime();
+        long now = Utility.timestamp.getTime();
 
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
@@ -176,14 +201,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
                 }
             }
         });
-    }
-
-    @Override
-    public void onMapReady(GoogleMap map) {
-        googleMap = map;
-
-        createPermissionListener();
-        retrieveGroupsAndFriendsFromRESTService();
     }
 
     private void placeMarkersOnMap(List<Friend> friends) {
@@ -332,6 +349,8 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
 
+                Log.d("THEAPP", new String(responseBody));
+
                 for (Group group : resp.getGroups()) {
                     if (!group.getFriends().isEmpty()) {
                         groups.add(group);
@@ -354,4 +373,27 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
             }
         });
     }
+
+    private void startRequestingServerOnInterval() {
+        requestServerAtIntervalHandlerTask.run();
+    }
+
+    private void stopRequestingServerOnInterval() {
+        Log.d("THEAPP", "requestServerAtIntervalHandlerTask stopped");
+        if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            requestServerAtIntervalHandler.removeMessages(REQUEST_SERVER_INTERVAL_ACTIVE);
+        }
+        requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
+    }
+
+    Runnable requestServerAtIntervalHandlerTask = new Runnable()
+    {
+        @Override
+        public void run() {
+            Log.d("THEAPP", "requestServerAtIntervalHandlerTask started");
+            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
+            retrieveGroupsAndFriendsFromRESTService();
+            requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
+        }
+    };
 }
