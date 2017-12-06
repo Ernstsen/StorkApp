@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,8 +35,6 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +55,8 @@ import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
 import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
 import stork.dk.storkapp.friendsSpinner.Traceable;
+import stork.dk.storkapp.location.StandardLocationSource;
+import stork.dk.storkapp.utils.TimeManagement;
 
 /**
  * @author morten
@@ -68,6 +67,7 @@ public class MapOverviewFragment extends Fragment {
 
     private GoogleMap googleMap;
     private LatLng lastKnownPosition;
+    private StandardLocationSource standardLocationSource;
 
     private List<Group> groups;
     private List<Friend> friends;
@@ -98,6 +98,8 @@ public class MapOverviewFragment extends Fragment {
 
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
+
+        standardLocationSource = new StandardLocationSource();
 
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -133,12 +135,14 @@ public class MapOverviewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        standardLocationSource.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        standardLocationSource.onPause();
     }
 
     @Override
@@ -169,6 +173,7 @@ public class MapOverviewFragment extends Fragment {
                         updateLastKnownPosition(location);
                     }
                 });
+        googleMap.setLocationSource(standardLocationSource);
     }
 
     public void stopLocationUpdates() {
@@ -178,11 +183,12 @@ public class MapOverviewFragment extends Fragment {
     // Retrieves users position
     private void updateLastKnownPosition(Location location) {
         lastKnownPosition = new LatLng(location.getLatitude(), location.getLongitude());
+        standardLocationSource.setLocation(lastKnownPosition);
         updateUserLocationAtRestService(location);
     }
 
     private void updateUserLocationAtRestService(Location location) {
-        long now = Utility.timestamp.getTime();
+        long now = TimeManagement.timestamp.getTime();
 
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
