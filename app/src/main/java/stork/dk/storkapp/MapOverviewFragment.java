@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.maps.android.SphericalUtil;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -74,8 +75,10 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
     // Constants for location tracking
     private final LocationAccuracy TRACKING_ACCURACY = LocationAccuracy.HIGH;
-    private final long TRACKING_INTERVAL = 60 * 1000;  /* 60 secs */
+    private final long TRACKING_INTERVAL = 60 * 1000;  // 60 secs
     private final float TRACKING_DISTANCE = 0;
+
+    private final Double INCLUDE_USER_IN_ZOOM_DISTANCE = 5000.0; // 5 km
 
     @Override
     public View onCreateView(final LayoutInflater inflater, final ViewGroup container, final Bundle savedInstanceState) {
@@ -147,9 +150,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
 
     // Retrieves users position
     private void updateLastKnownPosition(Location location) {
-
         lastKnownPosition = new LatLng(location.getLatitude(), location.getLongitude());
-
         updateUserLocationAtRestService(location);
     }
 
@@ -166,7 +167,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
         CommunicationsHandler.updateLocation(getActivity(), updateLocationRequest, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                //Toast.makeText(getActivity(), "onSuccess - statusCode: " + statusCode, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -183,7 +183,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
         googleMap = map;
 
         createPermissionListener();
-
         retrieveGroupsAndFriendsFromRESTService();
     }
 
@@ -202,11 +201,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
     private void zoomMap(List<Marker> markers, int mapEdgeOffset) {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-        for (Marker marker : markers) {
-            if(marker.getPosition() != null) builder.include(marker.getPosition());
-        }
-
-        if (lastKnownPosition != null) builder.include(lastKnownPosition);
+        builder = addMarkersToBoundsBuilder(builder, markers, lastKnownPosition);
 
         LatLngBounds bounds = builder.build();
 
@@ -215,6 +210,31 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
         googleMap.moveCamera(cameraUpdate);
 
         googleMap.animateCamera(cameraUpdate);
+    }
+
+    private LatLngBounds.Builder addMarkersToBoundsBuilder(LatLngBounds.Builder builder, List<Marker> markers, LatLng usersPosition) {
+        boolean usersPositionExists = usersPosition != null;
+        Double shortestDistanceToUser = null;
+
+        if (usersPositionExists) {
+            for (Marker marker : markers) {
+                boolean markerPositionExists = marker.getPosition() != null;
+                if (markerPositionExists) {
+                    Double markersDistanceToUser = SphericalUtil.computeDistanceBetween(usersPosition, marker.getPosition());
+                    if (shortestDistanceToUser == null || markersDistanceToUser < shortestDistanceToUser) {
+                        shortestDistanceToUser = markersDistanceToUser;
+                    }
+                    builder.include(marker.getPosition());
+                }
+            }
+            if (shortestDistanceToUser < INCLUDE_USER_IN_ZOOM_DISTANCE)
+            builder.include(lastKnownPosition);
+        } else {
+            for (Marker marker : markers) {
+                if(marker.getPosition() != null) builder.include(marker.getPosition());
+            }
+        }
+        return builder;
     }
 
     private void createPermissionListener() {
@@ -300,40 +320,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
     }
 
     private void retrieveGroupsAndFriendsFromRESTService() {
-        // Temporary simulation of retrieval
-        /*stork.dk.storkapp.communicationObjects.helperObjects.Location johannesLocation =
-                new stork.dk.storkapp.communicationObjects.helperObjects.Location(56.150312, 10.204725, 0);
-        Friend johannes = new Friend(1, "Johannes", johannesLocation);
-
-        stork.dk.storkapp.communicationObjects.helperObjects.Location mortensLocation =
-                new stork.dk.storkapp.communicationObjects.helperObjects.Location(56.171096, 10.189839, 0);
-        Friend morten = new Friend(2, "Morten", mortensLocation);
-
-        stork.dk.storkapp.communicationObjects.helperObjects.Location mathiasLocation =
-                new stork.dk.storkapp.communicationObjects.helperObjects.Location(55.672761, 12.564924, 0);
-        Friend mathias = new Friend(3, "Mathias", mathiasLocation);
-
-        friends = new ArrayList<>();
-        friends.add(johannes);
-        friends.add(morten);
-        friends.add(mathias);
-
-        List<Friend> group1sFriends = new ArrayList<>();
-        group1sFriends.add(johannes);
-        group1sFriends.add(morten);
-
-        Group group1 = new Group(1, "First group", group1sFriends);
-
-        List<Friend> group2sFriends = new ArrayList<>();
-        group2sFriends.add(mathias);
-        group2sFriends.add(morten);
-
-        Group group2 = new Group(2, "Second group", group2sFriends);
-
-        groups = new ArrayList<>();
-        groups.add(group1);
-        groups.add(group2);*/
-
         HashMap<String, String> params = new HashMap<>();
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
@@ -346,8 +332,6 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
 
-                //Toast.makeText(getActivity(), new String(responseBody), Toast.LENGTH_LONG).show();
-
                 for (Group group : resp.getGroups()) {
                     if (!group.getFriends().isEmpty()) {
                         groups.add(group);
@@ -358,9 +342,7 @@ public class MapOverviewFragment extends Fragment implements OnMapReadyCallback 
                 }
 
                 placeMarkersOnMap(friends);
-
                 populateFriendsSpinner();
-
                 friendsSpinnerOnItemSelectedListener();
             }
 

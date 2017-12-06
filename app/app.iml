@@ -158,6 +158,7 @@
     <orderEntry type="library" name="com.loopj.android:android-async-http:1.4.9@jar" level="project" />
     <orderEntry type="library" name="com.android.support:design-26.1.0" level="project" />
     <orderEntry type="library" name="com.android.support:transition-26.1.0" level="project" />
+    <orderEntry type="library" name="com.google.maps.android:android-maps-utils-0.5" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-base-11.6.2" level="project" />
     <orderEntry type="library" name="com.google.android.gms:play-services-tasks-license-11.6.2" level="project" />
   </component>
