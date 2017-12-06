@@ -15,7 +15,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,8 +35,6 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,6 +55,8 @@ import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
 import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
 import stork.dk.storkapp.friendsSpinner.Traceable;
+import stork.dk.storkapp.location.StandardLocationSource;
+import stork.dk.storkapp.utils.TimeManagement;
 
 /**
  * @author morten
@@ -68,6 +67,7 @@ public class MapOverviewFragment extends Fragment {
 
     private GoogleMap googleMap;
     private LatLng lastKnownPosition;
+    private StandardLocationSource standardLocationSource;
 
     private List<Group> groups;
     private List<Friend> friends;
@@ -99,6 +99,8 @@ public class MapOverviewFragment extends Fragment {
         mapView = rootView.findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
 
+        standardLocationSource = new StandardLocationSource();
+
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap map) {
@@ -116,7 +118,7 @@ public class MapOverviewFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
                 startRequestingServerOnInterval();
             }
         } else {
@@ -133,12 +135,14 @@ public class MapOverviewFragment extends Fragment {
     public void onResume() {
         super.onResume();
         mapView.onResume();
+        standardLocationSource.onResume();
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        standardLocationSource.onPause();
     }
 
     @Override
@@ -169,6 +173,7 @@ public class MapOverviewFragment extends Fragment {
                         updateLastKnownPosition(location);
                     }
                 });
+        googleMap.setLocationSource(standardLocationSource);
     }
 
     public void stopLocationUpdates() {
@@ -178,11 +183,12 @@ public class MapOverviewFragment extends Fragment {
     // Retrieves users position
     private void updateLastKnownPosition(Location location) {
         lastKnownPosition = new LatLng(location.getLatitude(), location.getLongitude());
+        standardLocationSource.setLocation(lastKnownPosition);
         updateUserLocationAtRestService(location);
     }
 
     private void updateUserLocationAtRestService(Location location) {
-        long now = stork.dk.storkapp.TimeManagement.timestamp.getTime();
+        long now = TimeManagement.timestamp.getTime();
 
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
@@ -196,7 +202,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if (statusCode == 403) {
+                if(statusCode == 403){
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -245,10 +251,10 @@ public class MapOverviewFragment extends Fragment {
                 }
             }
             if (shortestDistanceToUser < INCLUDE_USER_IN_ZOOM_DISTANCE)
-                builder.include(lastKnownPosition);
+            builder.include(lastKnownPosition);
         } else {
             for (Marker marker : markers) {
-                if (marker.getPosition() != null) builder.include(marker.getPosition());
+                if(marker.getPosition() != null) builder.include(marker.getPosition());
             }
         }
         return builder;
@@ -259,18 +265,13 @@ public class MapOverviewFragment extends Fragment {
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
                     @SuppressLint("MissingPermission")
-                    @Override
-                    public void onPermissionGranted(PermissionGrantedResponse response) {
+                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
                         googleMap.setMyLocationEnabled(true);
                     }
-
-                    @Override
-                    public void onPermissionDenied(PermissionDeniedResponse response) {
+                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
                         System.exit(0);
                     }
-
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
+                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
                         new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.title_location_permission)
                                 .setMessage(R.string.text_location_permission)
@@ -369,7 +370,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if (statusCode == 403) {
+                if(statusCode == 403){
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -387,7 +388,8 @@ public class MapOverviewFragment extends Fragment {
         requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
     }
 
-    Runnable requestServerAtIntervalHandlerTask = new Runnable() {
+    Runnable requestServerAtIntervalHandlerTask = new Runnable()
+    {
         @Override
         public void run() {
             requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.

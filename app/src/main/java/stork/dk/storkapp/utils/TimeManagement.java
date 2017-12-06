@@ -1,4 +1,4 @@
-package stork.dk.storkapp;
+package stork.dk.storkapp.utils;
 
 import java.sql.Timestamp;
 
