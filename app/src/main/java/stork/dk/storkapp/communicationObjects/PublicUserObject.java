@@ -55,4 +55,14 @@ public class PublicUserObject implements Comparable {
         PublicUserObject obj = (PublicUserObject) o;
         return name.compareTo(obj.getName());
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (other == null || getClass() != other.getClass()) return false;
+
+        PublicUserObject otherUserObject = (PublicUserObject) other;
+
+        return userId == otherUserObject.getUserId();
+    }
 }

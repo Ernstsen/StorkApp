@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
     private int userId;
+    private String friendsJson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,8 @@ public class AddFriendsActivity extends AppCompatActivity {
 
         SharedPreferences sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         userId = sharedPref.getInt(Constants.CURRENT_USER_KEY, 0);
+        friendsJson = sharedPref.getString(Constants.FRIENDS_LIST, "");
+        Log.d("THEAPP", friendsJson);
 
         // Should get list of current friends via sharedPreferences from FriendsFragment
 
@@ -91,11 +95,18 @@ public class AddFriendsActivity extends AppCompatActivity {
         usersList.setAdapter(adapter);
     }
 
+    private List<PublicUserObject> deserializeFriendsJson(String friendsJson) {
+        return new Gson().fromJson(friendsJson, new TypeToken<List<PublicUserObject>>(){}.getType());
+    }
+
     private List<PublicUserObject> filerUsers(List<PublicUserObject> userObjects) {
         List<PublicUserObject> filteredUserObjects = new ArrayList<>();
+        List<PublicUserObject> currentFriends = deserializeFriendsJson(friendsJson);
 
         for (PublicUserObject userObject : userObjects) {
-            if (userObject.getUserId() != userId) {
+            boolean isNotUser = userObject.getUserId() != userId;
+            boolean isNotCurrentFriend = !currentFriends.contains(userObject);
+            if (isNotUser && isNotCurrentFriend) {
                 filteredUserObjects.add(userObject);
             }
         }

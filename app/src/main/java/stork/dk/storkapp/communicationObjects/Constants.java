@@ -12,4 +12,5 @@ public class Constants {
     public static final String REMEMBER_ME_EMAIL = "rememberMeEmail";
     public static final String REMEMBER_ME_PASSWORD = "rememberMePassword";
     public static final String REMEMBER_ME_CHECK = "rememberMeCheck";
+    public static final String FRIENDS_LIST = "friendsList";
 }

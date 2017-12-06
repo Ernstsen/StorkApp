@@ -60,7 +60,6 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.d("THEAPP", "WHAT EVER");
                     CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
 
                     if (checkBox.isChecked()) {
