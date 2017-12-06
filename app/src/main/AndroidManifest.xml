@@ -30,6 +30,7 @@
             </intent-filter>
         </activity>
         <activity
+            android:windowSoftInputMode="stateHidden"
             android:name=".LoginOrSignup"
             android:label="@string/title_activity_login_or_signup"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -40,7 +41,7 @@
         <activity
             android:name=".AddFriend"
             android:label="@string/title_activity_add_friend"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

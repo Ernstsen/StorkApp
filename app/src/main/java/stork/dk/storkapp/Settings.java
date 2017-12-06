@@ -73,27 +73,26 @@ public class Settings extends AppCompatActivity {
         saveChanges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: Change bewow to cleaner code
-                if(oldPwField.getText().toString().equals("")){
-                    Toast.makeText(Settings.this, "Need password to save changes.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (!newPwField.getText().toString().equals("") && !newPwField.getText().toString().equals(matchPwField.getText().toString())) {
-                    Toast.makeText(Settings.this, "New Password doesn't match", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (!newPwField.getText().toString().equals("") && matchPwField.getText().toString().equals("")) {
-                    Toast.makeText(Settings.this, "New Password must be supplied twice", Toast.LENGTH_LONG).show();
-                } else {
                     doChanges();
-                }
+//                if(oldPwField.getText().toString().equals("")){
+//                    Toast.makeText(Settings.this, "Need password to save changes.", Toast.LENGTH_LONG).show();
+//                    return;
+//                }
+//                if (!newPwField.getText().toString().equals("") && !newPwField.getText().toString().equals(matchPwField.getText().toString())) {
+//                    Toast.makeText(Settings.this, "New Password doesn't match", Toast.LENGTH_LONG).show();
+//                    return;
+//                }
+//                if (!newPwField.getText().toString().equals("") && matchPwField.getText().toString().equals("")) {
+//                    Toast.makeText(Settings.this, "New Password must be supplied twice", Toast.LENGTH_LONG).show();
+//                } else {
+//                    doChanges();
+//                }
             }
         });
 
     }
 
     public void doChanges() {
-        //TODO: DO something here to change name
         req = new ChangeUserRequest();
         if (!nameField.getText().toString().equals("") && !nameField.getText().toString().equals(username)) {
             req.setName(nameField.getText().toString());
@@ -107,13 +106,15 @@ public class Settings extends AppCompatActivity {
         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
         req.setId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
 
+
         CommunicationsHandler.editUser(this, req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 ChangeUserRequest user = new Gson().fromJson(new String(responseBody), ChangeUserRequest.class);
-//                editor = sharedPref.edit();
-//                editor.putString(Constants.CURRENT_SESSION_KEY, user.getSessionId());
-//                editor.apply();
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(Constants.CURRENT_SESSION_KEY, user.getSessionId());
+                editor.putString(Constants.REMEMBER_ME_PASSWORD, user.getPassword());
+                editor.apply();
                 Toast.makeText(Settings.this, "Changes Saved.", Toast.LENGTH_SHORT).show();
                 finish();
             }

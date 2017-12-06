@@ -93,6 +93,7 @@ public class CommunicationsHandler {
     public static void editUser(Context context, ChangeUserRequest request, ResponseHandlerInterface responseHandler) {
         String payload = gson.toJson(request);
         try {
+            System.out.println(payload);
             post(context, BASE_URL + CHANGE_USER_URL, payload, responseHandler);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
