@@ -106,7 +106,6 @@ public class FriendsFragment extends Fragment {
                 selectedItems.clear();
 
                 hideDeleteButton();
-                //Todo: maybe remove the below if it works w/o
                 checkedCount = listView.getCheckedItemCount();
             }
         });
