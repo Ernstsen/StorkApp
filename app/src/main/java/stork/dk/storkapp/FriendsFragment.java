@@ -116,16 +116,15 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 SparseBooleanArray checkedItemPos = listView.getCheckedItemPositions();
-
+                ArrayList<Integer> selectedItems = new ArrayList<>();
                 for (int i = 0; i < listView.getCount(); i++) {
                     if (checkedItemPos.get(i)) {
-                        addItemToSelected(items.get(i));
+                        selectedItems.add(items.get(i).getUserId());
                     }
                 }
-                createGroup();
+                createGroup(selectedItems);
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
-                selectedItems.clear();
 
                 hideDeleteButton();
             }
@@ -234,7 +233,7 @@ public class FriendsFragment extends Fragment {
         selectedItems.add(user.getUserId());
     }
 
-    public void createGroup() {
+    public void createGroup(final List<Integer> selectedItems) {
 
         final EditText input = new EditText(getActivity());
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
