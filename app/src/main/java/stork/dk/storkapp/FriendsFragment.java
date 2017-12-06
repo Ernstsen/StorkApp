@@ -116,7 +116,7 @@ public class FriendsFragment extends Fragment {
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent addFriend = new Intent(getActivity(), AddFriend.class);
+                Intent addFriend = new Intent(getActivity(), AddFriendsActivity.class);
                 addFriend.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(addFriend);
             }

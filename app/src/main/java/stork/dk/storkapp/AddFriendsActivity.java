@@ -27,11 +27,12 @@ import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
 import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
+import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
 
 /**
  * @author Johannes
  */
-public class AddFriend extends AppCompatActivity {
+public class AddFriendsActivity extends AppCompatActivity {
     private SettingsFragment thisInstance;
     private ListView usersList;
     private ArrayAdapter<PublicUserObject> adapter;
@@ -94,8 +95,9 @@ public class AddFriend extends AppCompatActivity {
     private void populate(UsersResponse usersResponse) {
         items = new ArrayList<>();
         items.addAll(usersResponse.getUsers());
+
         usersList = findViewById(R.id.users_list);
-        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
+        adapter = new FriendsAdapter(getActivity(), items);
         usersList.setAdapter(adapter);
         usersList.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
@@ -114,7 +116,7 @@ public class AddFriend extends AppCompatActivity {
         CommunicationsHandler.changeFriends(this, req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if (!friendsToAdd.isEmpty()) {
+                if(!friendsToAdd.isEmpty()) {
                     Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
                 }
             }
