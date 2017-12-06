@@ -34,17 +34,17 @@ import stork.dk.storkapp.communicationObjects.UsersResponse;
 
 public class FriendsFragment extends Fragment {
 
-    private View rootView;
     private FloatingActionButton removeFriends;
     private FloatingActionButton addFriend;
     private ListView listView;
     private ArrayAdapter<String> adapter;
+    private int checkedCount = 0;
 
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.fragment_friends, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_friends, container, false);
         listView = rootView.findViewById(R.id.friendList);
 
         Bundle args = getArguments();
@@ -55,16 +55,7 @@ public class FriendsFragment extends Fragment {
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (listView.getCheckedItemCount() > 0) {
-                    showDeleteButton();
-                } else {
-                    hideDeleteButton();
-                }
-            }
-        });
+        setShowAndHideListener();
 
         removeFriends = rootView.findViewById(R.id.removeFriends);
         removeFriends.setOnClickListener(new View.OnClickListener() {
@@ -80,9 +71,10 @@ public class FriendsFragment extends Fragment {
                         hideDeleteButton();
                     }
                 }
+                //Todo: maybe remove the below if it works w/o
+                checkedCount = listView.getCheckedItemCount();
                 checkedItemPositions.clear();
                 adapter.notifyDataSetChanged();
-
             }
         });
 
@@ -101,8 +93,7 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 UsersResponse resp = new Gson().fromJson(new String(responseBody), UsersResponse.class);
-
-                populateWithObjects(resp.getUsers());
+                populateWithUsers(resp.getUsers());
             }
 
             @Override
@@ -114,7 +105,6 @@ public class FriendsFragment extends Fragment {
                 } else {
                     Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
                 }
-
             }
         });
 
@@ -127,12 +117,25 @@ public class FriendsFragment extends Fragment {
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
     }
 
-    private void populateWithObjects(List<PublicUserObject> users) {
+    private void populateWithUsers(List<PublicUserObject> users) {
         ArrayList<String> strings = new ArrayList<>();
         for (PublicUserObject user : users) {
             strings.add(user.getName());
         }
         populate(strings);
+    }
+
+    public void setShowAndHideListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (listView.getCheckedItemCount() > checkedCount) {
+                    showDeleteButton();
+                } else {
+                    hideDeleteButton();
+                }
+            }
+        });
     }
 
     public void showDeleteButton() {
