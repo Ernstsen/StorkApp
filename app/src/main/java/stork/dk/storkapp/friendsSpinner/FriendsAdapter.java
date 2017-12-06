@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
     private static class ViewHolder {
         TextView nameTextView;
         TextView emailTextView;
+        CheckBox checkBox;
     }
 
     public FriendsAdapter(Context context, List<PublicUserObject> data) {
@@ -52,6 +54,7 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
             convertView = inflater.inflate(R.layout.listview_item_friends, parent, false);
             viewHolder.nameTextView = (TextView) convertView.findViewById(R.id.name);
             viewHolder.emailTextView = (TextView) convertView.findViewById(R.id.email);
+            viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkbox);
 
             result=convertView;
 
@@ -61,8 +64,6 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
             result=convertView;
         }
 
-        Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
-        result.startAnimation(animation);
         lastPosition = position;
 
         viewHolder.nameTextView.setText(dataModel.getName());

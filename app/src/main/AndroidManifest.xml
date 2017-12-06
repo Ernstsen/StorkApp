@@ -39,7 +39,7 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AddFriend"
+            android:name=".AddFriendsActivity"
             android:label="@string/title_activity_add_friend"
             android:theme="@style/AppTheme.NoActionBar"/>
     </application>
