@@ -37,6 +37,8 @@ import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
  */
 public class AddFriendsActivity extends AppCompatActivity {
     private ListView usersList;
+    private FloatingActionButton fab;
+
     private FriendsAdapter adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
@@ -50,12 +52,12 @@ public class AddFriendsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        fab = findViewById(R.id.finish_fab);
+
         SharedPreferences sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         userId = sharedPref.getInt(Constants.CURRENT_USER_KEY, 0);
         friendsJson = sharedPref.getString(Constants.FRIENDS_LIST, "");
         Log.d("THEAPP", friendsJson);
-
-        // Should get list of current friends via sharedPreferences from FriendsFragment
 
         req = new FriendChangeRequest();
         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
@@ -67,6 +69,13 @@ public class AddFriendsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 UsersResponse usersResponse = new Gson().fromJson(new String(responseBody), UsersResponse.class);
                 populateListView(usersResponse);
+                fab.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        List<PublicUserObject> friendsToAdd = adapter.getCheckedObjects();
+                        addFriends(friendsToAdd);
+                    }
+                });
             }
 
             @Override
@@ -78,14 +87,6 @@ public class AddFriendsActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = findViewById(R.id.finish_fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                List<PublicUserObject> friendsToAdd = adapter.getCheckedObjects();
-                addFriends(friendsToAdd);
-            }
-        });
     }
 
     private void populateListView(UsersResponse usersResponse) {
