@@ -120,7 +120,9 @@ public class AddFriend extends AppCompatActivity {
         CommunicationsHandler.changeFriends(this, req, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
+                if(!friendsToAdd.isEmpty()) {
+                    Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override

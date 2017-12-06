@@ -45,6 +45,8 @@ public class FriendsFragment extends Fragment {
     private ArrayAdapter<String> adapter;
     private int checkedCount = 0;
     private View rootView;
+    private Integer userId;
+    private String sessionId;
 
 
     @Nullable
@@ -54,8 +56,21 @@ public class FriendsFragment extends Fragment {
         listView = rootView.findViewById(R.id.friendList);
 
         Bundle args = getArguments();
-        Integer userId = args.getInt(Constants.CURRENT_USER_KEY);
-        String sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
+        userId = args.getInt(Constants.CURRENT_USER_KEY);
+        sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
+
+
+
+        removeFriends = rootView.findViewById(R.id.removeFriends);
+        addFriend = rootView.findViewById(R.id.addFriendButton);
+        createGroup = rootView.findViewById(R.id.createGroup);
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
 
         searchFieldInit();
 
@@ -65,7 +80,6 @@ public class FriendsFragment extends Fragment {
 
         setShowAndHideListener();
 
-        removeFriends = rootView.findViewById(R.id.removeFriends);
         removeFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,8 +100,6 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-
-        addFriend = rootView.findViewById(R.id.addFriendButton);
         addFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,20 +123,19 @@ public class FriendsFragment extends Fragment {
                 } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
+                    //For Debug Purposes:
+                    //Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
                 }
             }
         });
-
-        createGroup = rootView.findViewById(R.id.createGroup);
-
-        return rootView;
     }
 
     private void populate(List<String> items) {
-        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
-        listView.setAdapter(adapter);
-        listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        if(getActivity() != null) {
+            adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_multiple_choice, items);
+            listView.setAdapter(adapter);
+            listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        }
     }
 
     private void populateWithUsers(List<PublicUserObject> users) {
@@ -162,29 +173,31 @@ public class FriendsFragment extends Fragment {
     }
 
     public void searchFieldInit(){
-        EditText searchField = (EditText) rootView.findViewById(R.id.searchField);
-        listView.setTextFilterEnabled(true);
-        searchField.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
-            }
+        if(getActivity() != null) {
+            EditText searchField = (EditText) rootView.findViewById(R.id.searchField);
+            listView.setTextFilterEnabled(true);
+            searchField.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+                }
 
-            @Override
-            public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
-                adapter.getFilter().filter(ag0);
-            }
+                @Override
+                public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
+                    adapter.getFilter().filter(ag0);
+                }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+                @Override
+                public void afterTextChanged(Editable s) {
+                }
+            });
+        }
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            adapter.notifyDataSetChanged();
+            onResume();
         }
     }
 }

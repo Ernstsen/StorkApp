@@ -116,7 +116,7 @@ public class MapOverviewFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
                 startRequestingServerOnInterval();
             }
         } else {
@@ -182,7 +182,7 @@ public class MapOverviewFragment extends Fragment {
     }
 
     private void updateUserLocationAtRestService(Location location) {
-        long now = Utility.timestamp.getTime();
+        long now = stork.dk.storkapp.TimeManagement.timestamp.getTime();
 
         stork.dk.storkapp.communicationObjects.helperObjects.Location locationToUpload
                 = new stork.dk.storkapp.communicationObjects.helperObjects.Location(location.getLatitude(), location.getLongitude(), now);
@@ -196,7 +196,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -245,10 +245,10 @@ public class MapOverviewFragment extends Fragment {
                 }
             }
             if (shortestDistanceToUser < INCLUDE_USER_IN_ZOOM_DISTANCE)
-            builder.include(lastKnownPosition);
+                builder.include(lastKnownPosition);
         } else {
             for (Marker marker : markers) {
-                if(marker.getPosition() != null) builder.include(marker.getPosition());
+                if (marker.getPosition() != null) builder.include(marker.getPosition());
             }
         }
         return builder;
@@ -259,13 +259,18 @@ public class MapOverviewFragment extends Fragment {
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(new PermissionListener() {
                     @SuppressLint("MissingPermission")
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse response) {
                         googleMap.setMyLocationEnabled(true);
                     }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse response) {
                         System.exit(0);
                     }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
                         new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.title_location_permission)
                                 .setMessage(R.string.text_location_permission)
@@ -296,16 +301,15 @@ public class MapOverviewFragment extends Fragment {
 
         for (Group group : groups) {
             spinnerItems.add(group);
-            for (Friend friend : group.getFriends()) {
-                spinnerItems.add(friend);
-            }
+            spinnerItems.addAll(group.getFriends());
         }
 
-        ArrayAdapter<Traceable> adapter = new ArrayAdapter<Traceable>(
-                getActivity(), android.R.layout.simple_spinner_item, spinnerItems);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        findFriendsSpinner.setAdapter(adapter);
+        if (getActivity() != null) {
+            ArrayAdapter<Traceable> adapter = new ArrayAdapter<Traceable>(
+                    getActivity(), android.R.layout.simple_spinner_item, spinnerItems);
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            findFriendsSpinner.setAdapter(adapter);
+        }
     }
 
     private void friendsSpinnerOnItemSelectedListener() {
@@ -365,7 +369,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -383,8 +387,7 @@ public class MapOverviewFragment extends Fragment {
         requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
     }
 
-    Runnable requestServerAtIntervalHandlerTask = new Runnable()
-    {
+    Runnable requestServerAtIntervalHandlerTask = new Runnable() {
         @Override
         public void run() {
             requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
