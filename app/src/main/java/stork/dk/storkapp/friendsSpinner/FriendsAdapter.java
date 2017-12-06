@@ -1,6 +1,7 @@
 package stork.dk.storkapp.friendsSpinner;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import stork.dk.storkapp.R;
@@ -20,7 +22,8 @@ import stork.dk.storkapp.communicationObjects.PublicUserObject;
  */
 public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
 
-    private List<PublicUserObject> dataSet;
+    private List<PublicUserObject> userObjects;
+    private List<PublicUserObject> checkedObjects = new ArrayList<>();
     Context mContext;
 
     // View lookup cache
@@ -30,9 +33,9 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
         CheckBox checkBox;
     }
 
-    public FriendsAdapter(Context context, List<PublicUserObject> data) {
-        super(context, R.layout.listview_item_friends, data);
-        this.dataSet = data;
+    public FriendsAdapter(Context context, List<PublicUserObject> userObjects) {
+        super(context, R.layout.listview_item_friends, userObjects);
+        this.userObjects = userObjects;
         this.mContext=context;
     }
 
@@ -41,11 +44,9 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         // Get the data item for this position
-        PublicUserObject dataModel = getItem(position);
+        final PublicUserObject userObject = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
-        ViewHolder viewHolder; // view lookup cache stored in tag
-
-        final View result;
+        final ViewHolder viewHolder; // view lookup cache stored in tag
 
         if (convertView == null) {
 
@@ -56,19 +57,39 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
             viewHolder.emailTextView = (TextView) convertView.findViewById(R.id.email);
             viewHolder.checkBox = (CheckBox) convertView.findViewById(R.id.checkbox);
 
-            result=convertView;
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("THEAPP", "WHAT EVER");
+                    CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
+
+                    if (checkBox.isChecked()) {
+                        checkBox.setChecked(false);
+                        if (checkedObjects.contains(userObject)) {
+                            checkedObjects.remove(userObject);
+                        }
+                    } else {
+                        checkBox.setChecked(true);
+                        checkedObjects.add(userObject);
+                    }
+                }
+            });
 
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
-            result=convertView;
         }
 
         lastPosition = position;
 
-        viewHolder.nameTextView.setText(dataModel.getName());
-        viewHolder.emailTextView.setText(dataModel.getMail());
+        viewHolder.nameTextView.setText(userObject.getName());
+        viewHolder.emailTextView.setText(userObject.getMail());
+
         // Return the completed view to render on screen
         return convertView;
+    }
+
+    public List<PublicUserObject> getCheckedObjects() {
+        return checkedObjects;
     }
 }
