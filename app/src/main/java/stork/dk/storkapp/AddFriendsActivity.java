@@ -141,7 +141,6 @@ public class AddFriendsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if(!idsOfFriendsToAdd.isEmpty()) {
                     items.removeAll(friendsToAdd);
-                    adapter.notifyDataSetChanged();
                     getActivity().finish();
                     Toast.makeText(getActivity(), "Friends added!", Toast.LENGTH_SHORT).show();
                 }
@@ -160,7 +159,9 @@ public class AddFriendsActivity extends AppCompatActivity {
 
     public void searchFieldInit() {
             final EditText searchField = (EditText) findViewById(R.id.searchFieldAddFriend);
-            usersList.setTextFilterEnabled(true);
+            if(usersList != null) {
+                usersList.setTextFilterEnabled(true);
+            }
             searchField.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {

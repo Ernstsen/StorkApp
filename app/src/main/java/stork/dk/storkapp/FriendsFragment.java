@@ -50,7 +50,6 @@ public class FriendsFragment extends Fragment {
     private FloatingActionButton removeFriends;
     private FloatingActionButton createGroup;
     private ListView listView;
-
     private ArrayAdapter<PublicUserObject> adapter;
     private int checkedCount = 0;
     private View rootView;
@@ -95,12 +94,14 @@ public class FriendsFragment extends Fragment {
             public void onClick(View v) {
                 SparseBooleanArray checkedItemPos = listView.getCheckedItemPositions();
 
+                ArrayList<PublicUserObject> tempSelected = new ArrayList<>();
                 for (int i = 0; i < listView.getCount(); i++) {
                     if (checkedItemPos.get(i)) {
-                        addItemToSelected(items.get(i));
-                        items.remove(items.get(i));
+                        tempSelected.add(items.get(i));
+                        selectedItems.add(items.get(i).getUserId());
                     }
                 }
+                items.removeAll(tempSelected);
                 removeFriends();
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
@@ -250,10 +251,6 @@ public class FriendsFragment extends Fragment {
                 }
             });
         }
-    }
-
-    private void addItemToSelected(PublicUserObject user) {
-        selectedItems.add(user.getUserId());
     }
 
     public void createGroup(final List<Integer> selectedItems) {

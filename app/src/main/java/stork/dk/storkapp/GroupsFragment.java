@@ -16,6 +16,8 @@ import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -58,7 +60,7 @@ public class GroupsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -67,8 +69,16 @@ public class GroupsFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+
+    }
+
     private void populateListView(List<Group> groups) {
         ListView groupList = rootView.findViewById(R.id.groupList);
+        Collections.sort(groups);
 
         ArrayAdapter<Group> adapter = new ArrayAdapter<Group>(getActivity(), android.R.layout.simple_list_item_1, groups);
         groupList.setAdapter(adapter);
@@ -79,5 +89,13 @@ public class GroupsFragment extends Fragment {
                 Group selectedItem = (Group) parent.getItemAtPosition(position);
             }
         });
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            onResume();
+        }
     }
 }

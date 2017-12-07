@@ -1,12 +1,14 @@
 package stork.dk.storkapp.friendsSpinner;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.List;
 
 /**
  * @author morten
  */
-public class Group implements Traceable, Serializable {
+public class Group implements Traceable, Serializable, Comparable {
     private int id;
     private String name;
     private List<Friend> friends;
@@ -33,5 +35,11 @@ public class Group implements Traceable, Serializable {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public int compareTo(@NonNull Object o) {
+        Group obj = (Group) o;
+        return name.compareTo(obj.getName());
     }
 }
