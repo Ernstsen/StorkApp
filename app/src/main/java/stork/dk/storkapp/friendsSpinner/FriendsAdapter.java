@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import stork.dk.storkapp.R;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
@@ -26,6 +27,9 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
     private List<PublicUserObject> checkedObjects = new ArrayList<>();
     Context mContext;
 
+    // Search functionality
+    private ArrayList<PublicUserObject> usersFilteredList;
+
     // View lookup cache
     private static class ViewHolder {
         TextView nameTextView;
@@ -37,6 +41,10 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
         super(context, R.layout.listview_item_friends, userObjects);
         this.userObjects = userObjects;
         this.mContext=context;
+
+        // Search functionality
+        this.usersFilteredList = new ArrayList<PublicUserObject>();
+        this.usersFilteredList.addAll(userObjects);
     }
 
     private int lastPosition = -1;
@@ -90,5 +98,22 @@ public class FriendsAdapter extends ArrayAdapter<PublicUserObject> {
 
     public List<PublicUserObject> getCheckedObjects() {
         return checkedObjects;
+    }
+
+    // Search functionality
+    public void filter(String charText) {
+        charText = charText.toLowerCase(Locale.getDefault());
+        userObjects.clear();
+        if (charText.length() == 0) {
+            userObjects.addAll(usersFilteredList);
+        } else {
+            for (PublicUserObject user : usersFilteredList) {
+                if (user.getName().toLowerCase(Locale.getDefault())
+                        .contains(charText)) {
+                    userObjects.add(user);
+                }
+            }
+        }
+        notifyDataSetChanged();
     }
 }
