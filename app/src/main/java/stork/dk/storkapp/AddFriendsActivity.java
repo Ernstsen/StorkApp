@@ -8,11 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,9 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
@@ -33,8 +27,8 @@ import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
-import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
-import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
+import stork.dk.storkapp.friendsSpinner.PublicUserObjectWithCheckbox;
+import stork.dk.storkapp.friendsSpinner.SearchableAdapter;
 
 /**
  * @author Johannes, Mathias, Morten
@@ -43,7 +37,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     private ListView usersList;
     private FloatingActionButton fab;
 
-    private FriendsAdapter adapter;
+    private SearchableAdapter adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
     private int userId;
@@ -76,7 +70,14 @@ public class AddFriendsActivity extends AppCompatActivity {
                 fab.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        List<PublicUserObject> friendsToAdd = adapter.getCheckedObjects();
+                        List<PublicUserObjectWithCheckbox> checkedObjects = adapter.getCheckedObjects();
+
+                        List<PublicUserObject> friendsToAdd = new ArrayList<>();
+                        for (PublicUserObjectWithCheckbox userObjectWithCheckbox : checkedObjects) {
+                            PublicUserObject userObject
+                                    = new PublicUserObject(userObjectWithCheckbox.getUserId(), userObjectWithCheckbox.getName(), userObjectWithCheckbox.getMail());
+                            friendsToAdd.add(userObject);
+                        }
                         addFriends(friendsToAdd);
                     }
                 });
@@ -94,7 +95,15 @@ public class AddFriendsActivity extends AppCompatActivity {
 
     private void populateListView(UsersResponse usersResponse) {
         items = new ArrayList<>(filerUsers(usersResponse.getUsers()));
-        adapter = new FriendsAdapter(getActivity(), items);
+
+        List<PublicUserObjectWithCheckbox> userObjectsWithCheckbox = new ArrayList<>();
+        for (PublicUserObject userObject : items) {
+            PublicUserObjectWithCheckbox userObjectWithCheckbox
+                    = new PublicUserObjectWithCheckbox(userObject.getUserId(), userObject.getName(), userObject.getMail(), false);
+            userObjectsWithCheckbox.add(userObjectWithCheckbox);
+        }
+
+        adapter = new SearchableAdapter(getActivity(), userObjectsWithCheckbox);
         usersList.setAdapter(adapter);
         searchFieldInit();
     }
@@ -169,13 +178,11 @@ public class AddFriendsActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
-                    //adapter.getFilter().filter(ag0);
+                    adapter.getFilter().filter(ag0);
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    String text = searchField.getText().toString().toLowerCase(Locale.getDefault());
-                    adapter.filter(text);
                 }
             });
     }
