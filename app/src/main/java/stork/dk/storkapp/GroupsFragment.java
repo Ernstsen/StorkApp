@@ -2,21 +2,17 @@ package stork.dk.storkapp;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import stork.dk.storkapp.utils.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,16 +22,21 @@ import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.GroupsResponse;
+import stork.dk.storkapp.friendsSpinner.Friend;
 import stork.dk.storkapp.friendsSpinner.Group;
 
 
 /**
- * @author morten
+ * @author Mathias, Morten
  */
 public class GroupsFragment extends Fragment {
     private View rootView;
-    private Integer userId;
+    private HashMap<String, List<String>> listDataChild;
+    private ArrayList<String> listDataHeader;
+    private ExpandableListAdapter adapter;
     private String sessionId;
+    private int userId;
+    private ExpandableListView groupList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,6 +47,22 @@ public class GroupsFragment extends Fragment {
         userId = args.getInt(Constants.CURRENT_USER_KEY);
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
+        listDataHeader = new ArrayList<>();
+        listDataChild = new HashMap<>();
+        groupList = rootView.findViewById(R.id.groupList);
+
+        return rootView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        populateList();
+
+    }
+
+    public void populateList(){
         HashMap<String, String> params = new HashMap<>();
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
@@ -54,8 +71,21 @@ public class GroupsFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
+                int i = 0;
+                if(listDataHeader.isEmpty()) {
+                    Collections.sort(resp.getGroups());
+                    for (Group group : resp.getGroups()) {
+                        listDataHeader.add(group.getName());
 
-                populateListView(resp.getGroups());
+                        List<String> grp = new ArrayList<>();
+                        for (Friend friend : group.getFriends()) {
+                            grp.add(friend.getName());
+                        }
+                        listDataChild.put(listDataHeader.get(i), grp);
+                        i++;
+                    }
+                }
+                setAdapter();
             }
 
             @Override
@@ -66,36 +96,22 @@ public class GroupsFragment extends Fragment {
             }
         });
 
-        return rootView;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
 
     }
 
-    private void populateListView(List<Group> groups) {
-        ListView groupList = rootView.findViewById(R.id.groupList);
-        Collections.sort(groups);
-
-        ArrayAdapter<Group> adapter = new ArrayAdapter<Group>(getActivity(), android.R.layout.simple_list_item_1, groups);
+    public void setAdapter(){
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
         groupList.setAdapter(adapter);
-
-        groupList.setOnItemClickListener(new OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Group selectedItem = (Group) parent.getItemAtPosition(position);
-            }
-        });
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            onResume();
+            populateList();
+            adapter.notifyDataSetChanged();
         }
     }
 }
