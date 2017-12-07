@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -95,6 +96,7 @@ public class AddFriendsActivity extends AppCompatActivity {
 
     private void populateListView(UsersResponse usersResponse) {
         items = new ArrayList<>(filerUsers(usersResponse.getUsers()));
+        Collections.sort(items);
 
         List<PublicUserObjectWithCheckbox> userObjectsWithCheckbox = new ArrayList<>();
         for (PublicUserObject userObject : items) {

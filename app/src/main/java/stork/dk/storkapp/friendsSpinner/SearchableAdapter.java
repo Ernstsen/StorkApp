@@ -71,19 +71,7 @@ public class SearchableAdapter extends BaseAdapter implements Filterable {
                 public void onClick(View v) {
                     CheckBox checkBox = (CheckBox) v.findViewById(R.id.checkBox);
 
-                    if (checkBox.isChecked()) {
-                        checkBox.setChecked(false);
-                        originalUserObject.setChecked(false);
-                        if (checkedObjects.contains(originalUserObject)) {
-                            checkedObjects.remove(originalUserObject);
-                        }
-                    } else {
-                        checkBox.setChecked(true);
-                        originalUserObject.setChecked(true);
-                        if (!checkedObjects.contains(originalUserObject)) {
-                            checkedObjects.add(originalUserObject);
-                        }
-                    }
+                    checkBox.setChecked(!checkBox.isChecked());
                 }
             });
 
@@ -106,12 +94,14 @@ public class SearchableAdapter extends BaseAdapter implements Filterable {
                 originalUserObject.setChecked(isChecked);
 
                 if (isChecked) {
-                    if (checkedObjects.contains(originalUserObject)) {
-                        checkedObjects.remove(originalUserObject);
-                    }
-                } else {
+                    originalUserObject.setChecked(true);
                     if (!checkedObjects.contains(originalUserObject)) {
                         checkedObjects.add(originalUserObject);
+                    }
+                } else {
+                    originalUserObject.setChecked(false);
+                    if (checkedObjects.contains(originalUserObject)) {
+                        checkedObjects.remove(originalUserObject);
                     }
                 }
             }
