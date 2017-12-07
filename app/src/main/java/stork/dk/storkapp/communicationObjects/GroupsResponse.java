@@ -2,10 +2,8 @@ package stork.dk.storkapp.communicationObjects;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-import stork.dk.storkapp.communicationObjects.helperObjects.Location;
-import stork.dk.storkapp.friendsSpinner.Group;
+import stork.dk.storkapp.Adapter.Group;
 
 /**
  * @author Johannes, Morten

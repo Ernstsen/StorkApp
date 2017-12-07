@@ -1,7 +1,6 @@
-package stork.dk.storkapp.friendsSpinner;
+package stork.dk.storkapp.Adapter;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.List;

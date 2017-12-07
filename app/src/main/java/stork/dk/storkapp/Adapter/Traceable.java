@@ -1,4 +1,4 @@
-package stork.dk.storkapp.friendsSpinner;
+package stork.dk.storkapp.Adapter;
 
 /**
  * This interface is used to enable both Group's and Fried's to populate the same spinner

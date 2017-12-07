@@ -28,8 +28,8 @@ import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
-import stork.dk.storkapp.friendsSpinner.PublicUserObjectWithCheckbox;
-import stork.dk.storkapp.friendsSpinner.SearchableAdapter;
+import stork.dk.storkapp.Adapter.PublicUserObjectWithCheckbox;
+import stork.dk.storkapp.Adapter.SearchableAdapterAddFriends;
 
 /**
  * @author Johannes, Mathias, Morten
@@ -38,7 +38,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     private ListView usersList;
     private FloatingActionButton fab;
 
-    private SearchableAdapter adapter;
+    private SearchableAdapterAddFriends adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
     private int userId;
@@ -105,7 +105,7 @@ public class AddFriendsActivity extends AppCompatActivity {
             userObjectsWithCheckbox.add(userObjectWithCheckbox);
         }
 
-        adapter = new SearchableAdapter(getActivity(), userObjectsWithCheckbox);
+        adapter = new SearchableAdapterAddFriends(getActivity(), userObjectsWithCheckbox);
         usersList.setAdapter(adapter);
         searchFieldInit();
     }

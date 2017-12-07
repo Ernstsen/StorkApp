@@ -1,4 +1,4 @@
-package stork.dk.storkapp.friendsSpinner;
+package stork.dk.storkapp.Adapter;
 
 import java.io.Serializable;
 

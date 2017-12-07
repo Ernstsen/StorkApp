@@ -1,4 +1,4 @@
-package stork.dk.storkapp.friendsSpinner;
+package stork.dk.storkapp.Adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -19,7 +19,7 @@ import stork.dk.storkapp.R;
 // The standard text view adapter only seems to search from the beginning of whole words
 // so we've had to write this whole class to make it possible to search
 // for parts of the arbitrary string we want
-public class SearchableAdapter extends BaseAdapter implements Filterable {
+public class SearchableAdapterAddFriends extends BaseAdapter implements Filterable {
 
     private List<PublicUserObjectWithCheckbox> originalData = null;
     private List<PublicUserObjectWithCheckbox> filteredData = null;
@@ -28,7 +28,7 @@ public class SearchableAdapter extends BaseAdapter implements Filterable {
     private ItemFilter mFilter = new ItemFilter();
 
 
-    public SearchableAdapter(Context context, List<PublicUserObjectWithCheckbox> data) {
+    public SearchableAdapterAddFriends(Context context, List<PublicUserObjectWithCheckbox> data) {
         this.filteredData = this.originalData = data;
         mInflater = LayoutInflater.from(context);
     }

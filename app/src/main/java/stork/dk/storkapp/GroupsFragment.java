@@ -9,8 +9,6 @@ import android.view.ViewGroup;
 import stork.dk.storkapp.utils.ExpandableListAdapter;
 
 import android.widget.ExpandableListView;
-import android.widget.Switch;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -25,8 +23,8 @@ import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.GroupsResponse;
-import stork.dk.storkapp.friendsSpinner.Friend;
-import stork.dk.storkapp.friendsSpinner.Group;
+import stork.dk.storkapp.Adapter.Friend;
+import stork.dk.storkapp.Adapter.Group;
 
 
 /**
