@@ -400,7 +400,7 @@ public class MapOverviewFragment extends Fragment {
     {
         @Override
         public void run() {
-            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
+            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);
             retrieveGroupsAndFriendsFromRESTService();
             requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
         }

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -49,6 +50,7 @@ public class FriendsFragment extends Fragment {
     private FloatingActionButton removeFriends;
     private FloatingActionButton createGroup;
     private ListView listView;
+
     private ArrayAdapter<PublicUserObject> adapter;
     private int checkedCount = 0;
     private View rootView;
@@ -56,6 +58,10 @@ public class FriendsFragment extends Fragment {
     private String sessionId;
     private List<Integer> selectedItems;
     private ArrayList<PublicUserObject> items;
+
+    private Handler requestServerAtIntervalHandler = new Handler();
+    private int REQUEST_SERVER_INTERVAL = 60 * 1000; // 60 secs
+    private int REQUEST_SERVER_INTERVAL_ACTIVE = 1;
 
     @Nullable
     @Override
@@ -73,6 +79,8 @@ public class FriendsFragment extends Fragment {
         addFriend = rootView.findViewById(R.id.addFriendButton);
         createGroup = rootView.findViewById(R.id.createGroup);
 
+        startRequestingServerOnInterval();
+
         return rootView;
     }
 
@@ -80,12 +88,7 @@ public class FriendsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-
         searchFieldInit();
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("sessionId", sessionId);
-        params.put("userId", String.valueOf(userId));
 
         setShowAndHideListener();
 
@@ -138,6 +141,27 @@ public class FriendsFragment extends Fragment {
                 startActivity(addFriend);
             }
         });
+
+
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser) {
+            onResume();
+            if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+                startRequestingServerOnInterval();
+            }
+        } else {
+            stopRequestingServerOnInterval();
+        }
+    }
+
+    private void retrieveFriendsFromRESTService() {
+        HashMap<String, String> params = new HashMap<>();
+        params.put("sessionId", sessionId);
+        params.put("userId", String.valueOf(userId));
 
         CommunicationsHandler.getFriends(params, new AsyncHttpResponseHandler() {
             @Override
@@ -230,14 +254,6 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser) {
-            onResume();
-        }
-    }
-
     private void addItemToSelected(PublicUserObject user) {
         selectedItems.add(user.getUserId());
     }
@@ -324,4 +340,25 @@ public class FriendsFragment extends Fragment {
     private FragmentActivity getFriendsFragmentActivity() {
         return getActivity();
     }
+
+    private void startRequestingServerOnInterval() {
+        requestServerAtIntervalHandlerTask.run();
+    }
+
+    private void stopRequestingServerOnInterval() {
+        if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            requestServerAtIntervalHandler.removeMessages(REQUEST_SERVER_INTERVAL_ACTIVE);
+        }
+        requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
+    }
+
+    Runnable requestServerAtIntervalHandlerTask = new Runnable()
+    {
+        @Override
+        public void run() {
+            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);
+            retrieveFriendsFromRESTService();
+            requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
+        }
+    };
 }

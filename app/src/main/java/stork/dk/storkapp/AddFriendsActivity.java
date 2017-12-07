@@ -41,6 +41,7 @@ import stork.dk.storkapp.friendsSpinner.FriendsAdapter;
 public class AddFriendsActivity extends AppCompatActivity {
     private ListView usersList;
     private FloatingActionButton fab;
+
     private FriendsAdapter adapter;
     private ArrayList<PublicUserObject> items;
     private FriendChangeRequest req;
@@ -54,13 +55,12 @@ public class AddFriendsActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        usersList = findViewById(R.id.users_list);
         fab = findViewById(R.id.finish_fab);
 
         SharedPreferences sharedPref = getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         userId = sharedPref.getInt(Constants.CURRENT_USER_KEY, 0);
         friendsJson = sharedPref.getString(Constants.FRIENDS_LIST, "");
-        Log.d("THEAPP", friendsJson);
 
         req = new FriendChangeRequest();
         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, ""));
@@ -93,7 +93,6 @@ public class AddFriendsActivity extends AppCompatActivity {
 
     private void populateListView(UsersResponse usersResponse) {
         items = new ArrayList<>(filerUsers(usersResponse.getUsers()));
-        usersList = findViewById(R.id.users_list);
         adapter = new FriendsAdapter(getActivity(), items);
         usersList.setAdapter(adapter);
         searchFieldInit();
