@@ -28,10 +28,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
 import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
 import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.karumi.dexter.listener.single.PermissionListener;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -70,7 +72,6 @@ public class MapOverviewFragment extends Fragment {
     private StandardLocationSource standardLocationSource;
 
     private List<Group> groups;
-    private List<Friend> friends;
     private Map<Integer, Marker> markers;
 
     private int userId;
@@ -262,16 +263,23 @@ public class MapOverviewFragment extends Fragment {
 
     private void createPermissionListener() {
         Dexter.withActivity(getActivity())
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(new PermissionListener() {
+                .withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.INTERNET
+                )
+                .withListener(new MultiplePermissionsListener() {
                     @SuppressLint("MissingPermission")
-                    @Override public void onPermissionGranted(PermissionGrantedResponse response) {
-                        googleMap.setMyLocationEnabled(true);
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        boolean allPermissionsGranted = report.areAllPermissionsGranted();
+                        if (allPermissionsGranted) {
+                            googleMap.setMyLocationEnabled(true);
+                        } else {
+                            System.exit(0);
+                        }
                     }
-                    @Override public void onPermissionDenied(PermissionDeniedResponse response) {
-                        System.exit(0);
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(PermissionRequest permission, final PermissionToken token) {
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, final PermissionToken token) {
                         new AlertDialog.Builder(getActivity())
                                 .setTitle(R.string.title_location_permission)
                                 .setMessage(R.string.text_location_permission)
@@ -347,12 +355,12 @@ public class MapOverviewFragment extends Fragment {
         params.put("userId", String.valueOf(userId));
 
         groups = new ArrayList<>();
-        friends = new ArrayList<>();
 
         CommunicationsHandler.getGroups(params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
+                Set<Friend> friends = new HashSet<>();
 
                 for (Group group : resp.getGroups()) {
                     if (!group.getFriends().isEmpty()) {
@@ -363,7 +371,7 @@ public class MapOverviewFragment extends Fragment {
                     }
                 }
 
-                placeMarkersOnMap(friends);
+                placeMarkersOnMap(new ArrayList<Friend>(friends));
                 populateFriendsSpinner();
                 friendsSpinnerOnItemSelectedListener();
             }
@@ -392,7 +400,7 @@ public class MapOverviewFragment extends Fragment {
     {
         @Override
         public void run() {
-            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);//Do this when you add the call back.
+            requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);
             retrieveGroupsAndFriendsFromRESTService();
             requestServerAtIntervalHandler.postDelayed(requestServerAtIntervalHandlerTask, REQUEST_SERVER_INTERVAL);
         }
