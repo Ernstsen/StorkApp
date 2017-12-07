@@ -30,6 +30,7 @@
     <string name="settings_edit_profile">Edit Profile</string>
     <string name="title_activity_add_friend">AddFriend</string>
     <string name="search">Search</string>
+    <string name="title_activity_edit_group"></string>
 
 
 </resources>

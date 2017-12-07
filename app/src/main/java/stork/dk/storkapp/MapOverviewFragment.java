@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -119,7 +120,7 @@ public class MapOverviewFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         if (isVisibleToUser) {
-            if(requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
+            if (requestServerAtIntervalHandler.hasMessages(REQUEST_SERVER_INTERVAL_ACTIVE)) {
                 startRequestingServerOnInterval();
             }
         } else {
@@ -203,7 +204,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -217,12 +218,16 @@ public class MapOverviewFragment extends Fragment {
         markers = new HashMap<>();
 
         for (Friend friend : friends) {
-            LatLng location = new LatLng(friend.getLocation().getLatitude(), friend.getLocation().getLongitude());
-            markers.put(friend.getId(), googleMap.addMarker(new MarkerOptions().position(location).title(friend.getName())));
+                LatLng location = new LatLng(friend.getLocation().getLatitude(), friend.getLocation().getLongitude());
+                markers.put(friend.getId(), googleMap.addMarker(new MarkerOptions().position(location).title(friend.getName())));
         }
     }
 
     private void zoomMap(List<Marker> markers, int mapEdgeOffset) {
+        if (markers.size() == 0){
+            return;
+        }
+
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
         builder = addMarkersToBoundsBuilder(builder, markers, lastKnownPosition);
@@ -252,10 +257,12 @@ public class MapOverviewFragment extends Fragment {
                 }
             }
             if (shortestDistanceToUser < INCLUDE_USER_IN_ZOOM_DISTANCE)
-            builder.include(lastKnownPosition);
+                builder.include(lastKnownPosition);
         } else {
             for (Marker marker : markers) {
-                if(marker.getPosition() != null) builder.include(marker.getPosition());
+                if (marker != null && marker.getPosition() != null) {
+                    builder.include(marker.getPosition());
+                }
             }
         }
         return builder;
@@ -278,6 +285,7 @@ public class MapOverviewFragment extends Fragment {
                             System.exit(0);
                         }
                     }
+
                     @Override
                     public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, final PermissionToken token) {
                         new AlertDialog.Builder(getActivity())
@@ -357,16 +365,25 @@ public class MapOverviewFragment extends Fragment {
         groups = new ArrayList<>();
 
         CommunicationsHandler.getGroups(params, new AsyncHttpResponseHandler() {
+            private boolean hasFriendsWithLocation(Group group){
+                boolean result = false;
+                for (Friend friend : group.getFriends()) {
+                    result |= friend.getLocation() != null;
+                }
+                return result;
+            }
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
                 Set<Friend> friends = new HashSet<>();
 
                 for (Group group : resp.getGroups()) {
-                    if (!group.getFriends().isEmpty()) {
+                    if (hasFriendsWithLocation(group)) {
                         groups.add(group);
                         for (Friend friend : group.getFriends()) {
-                            friends.add(friend);
+                            if (friend.getLocation() != null) {
+                                friends.add(friend);
+                            }
                         }
                     }
                 }
@@ -378,7 +395,7 @@ public class MapOverviewFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                if(statusCode == 403){
+                if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
                 }
             }
@@ -396,8 +413,7 @@ public class MapOverviewFragment extends Fragment {
         requestServerAtIntervalHandler.removeCallbacks(requestServerAtIntervalHandlerTask);
     }
 
-    Runnable requestServerAtIntervalHandlerTask = new Runnable()
-    {
+    Runnable requestServerAtIntervalHandlerTask = new Runnable() {
         @Override
         public void run() {
             requestServerAtIntervalHandler.sendEmptyMessage(REQUEST_SERVER_INTERVAL_ACTIVE);
