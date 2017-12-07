@@ -313,7 +313,7 @@ public class MapOverviewFragment extends Fragment {
             allFriends.addAll(group.getFriends());
         }
 
-        Group groupContainingAllFriends = new Group(0, "Show all", new ArrayList<Friend>(allFriends));
+        Group groupContainingAllFriends = new Group(0, "Show all", new ArrayList<Friend>(allFriends), 0);
         spinnerItems.add(groupContainingAllFriends);
 
         for (Group group : groups) {
