@@ -39,6 +39,7 @@ import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
+import stork.dk.storkapp.communicationObjects.helperObjects.UserObject;
 
 /**
  * @author Mathias, Johannes.
@@ -80,7 +81,6 @@ public class FriendsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-
         searchFieldInit();
 
         HashMap<String, String> params = new HashMap<>();
@@ -94,12 +94,14 @@ public class FriendsFragment extends Fragment {
             public void onClick(View v) {
                 SparseBooleanArray checkedItemPos = listView.getCheckedItemPositions();
 
+                ArrayList<PublicUserObject> tempSelected = new ArrayList<>();
                 for (int i = 0; i < listView.getCount(); i++) {
                     if (checkedItemPos.get(i)) {
-                        addItemToSelected(items.get(i));
-                        items.remove(items.get(i));
+                        tempSelected.add(items.get(i));
+                        selectedItems.add(items.get(i).getUserId());
                     }
                 }
+                items.removeAll(tempSelected);
                 removeFriends();
                 checkedItemPos.clear();
                 adapter.notifyDataSetChanged();
@@ -238,9 +240,6 @@ public class FriendsFragment extends Fragment {
         }
     }
 
-    private void addItemToSelected(PublicUserObject user) {
-        selectedItems.add(user.getUserId());
-    }
 
     public void createGroup(final List<Integer> selectedItems) {
 
