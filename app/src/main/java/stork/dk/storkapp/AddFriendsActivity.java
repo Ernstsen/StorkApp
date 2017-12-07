@@ -24,6 +24,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import cz.msebera.android.httpclient.Header;
 import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
@@ -157,7 +158,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     }
 
     public void searchFieldInit() {
-            EditText searchField = (EditText) findViewById(R.id.searchFieldAddFriend);
+            final EditText searchField = (EditText) findViewById(R.id.searchFieldAddFriend);
             if(usersList != null) {
                 usersList.setTextFilterEnabled(true);
             }
@@ -168,11 +169,13 @@ public class AddFriendsActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence ag0, int ag1, int ag2, int ag3) {
-                    adapter.getFilter().filter(ag0);
+                    //adapter.getFilter().filter(ag0);
                 }
 
                 @Override
                 public void afterTextChanged(Editable s) {
+                    String text = searchField.getText().toString().toLowerCase(Locale.getDefault());
+                    adapter.filter(text);
                 }
             });
     }

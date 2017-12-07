@@ -78,8 +78,6 @@ public class FriendsFragment extends Fragment {
         addFriend = rootView.findViewById(R.id.addFriendButton);
         createGroup = rootView.findViewById(R.id.createGroup);
 
-        startRequestingServerOnInterval();
-
         return rootView;
     }
 
@@ -143,7 +141,7 @@ public class FriendsFragment extends Fragment {
             }
         });
 
-
+        startRequestingServerOnInterval();
     }
 
     @Override
