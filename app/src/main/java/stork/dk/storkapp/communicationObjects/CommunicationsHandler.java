@@ -28,6 +28,7 @@ public class CommunicationsHandler {
     private static final String CHANGE_USER_URL = "changeUser";
     private static final String CHANGE_FRIEND_URL = "friend";
     private static final String CHANGE_GROUP_URL = "changeGroup";
+    private static final String UPDATE_GROUP_ACTIVATION = "changeGroupActivation";
 
     private final static AsyncHttpClient client = new AsyncHttpClient();
     private final static Gson gson = new Gson();
@@ -110,6 +111,15 @@ public class CommunicationsHandler {
         try {
             post(context, BASE_URL + CHANGE_GROUP_URL, payload, responseHandler);
         } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void changeGroupActivation(Context context, GroupChangeActivationRequest req, ResponseHandlerInterface responseHandler){
+        String payload = gson.toJson(req);
+        try{
+            post(context, BASE_URL + UPDATE_GROUP_ACTIVATION, payload, responseHandler);
+        } catch (UnsupportedEncodingException e){
             e.printStackTrace();
         }
     }

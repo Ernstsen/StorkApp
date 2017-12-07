@@ -1,6 +1,7 @@
 package stork.dk.storkapp.friendsSpinner;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.io.Serializable;
 import java.util.List;
@@ -49,7 +50,7 @@ public class Group implements Traceable, Serializable, Comparable {
         return owner;
     }
 
-    public void setOwner(int owner) {
+    public void setOwner( int owner) {
         this.owner = owner;
     }
 

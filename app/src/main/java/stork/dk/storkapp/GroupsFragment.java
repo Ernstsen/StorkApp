@@ -5,8 +5,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import stork.dk.storkapp.utils.ExpandableListAdapter;
+
 import android.widget.ExpandableListView;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,6 +35,7 @@ import stork.dk.storkapp.friendsSpinner.Group;
 public class GroupsFragment extends Fragment {
     private View rootView;
     private HashMap<String, List<String>> listDataChild;
+    private HashMap<Integer, Integer> groupsIdAndPos;
     private ArrayList<String> listDataHeader;
     private ExpandableListAdapter adapter;
     private String sessionId;
@@ -47,6 +51,7 @@ public class GroupsFragment extends Fragment {
         userId = args.getInt(Constants.CURRENT_USER_KEY);
         sessionId = args.getString(Constants.CURRENT_SESSION_KEY);
 
+        groupsIdAndPos = new HashMap<>();
         listDataHeader = new ArrayList<>();
         listDataChild = new HashMap<>();
         groupList = rootView.findViewById(R.id.groupList);
@@ -59,10 +64,9 @@ public class GroupsFragment extends Fragment {
         super.onResume();
 
         populateList();
-
     }
 
-    public void populateList(){
+    public void populateList() {
         HashMap<String, String> params = new HashMap<>();
         params.put("sessionId", sessionId);
         params.put("userId", String.valueOf(userId));
@@ -72,16 +76,20 @@ public class GroupsFragment extends Fragment {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
                 int i = 0;
-                if(listDataHeader.isEmpty()) {
-                    Collections.sort(resp.getGroups());
+                Collections.sort(resp.getGroups());
+                if(listDataHeader.size() != resp.getGroups().size()) {
                     for (Group group : resp.getGroups()) {
                         listDataHeader.add(group.getName());
-
+                        groupsIdAndPos.put(listDataHeader.indexOf(group.getName()), group.getId());
+                        if (group.getOwner() == userId) {
+                            //if owner, do something
+                        }
                         List<String> grp = new ArrayList<>();
                         for (Friend friend : group.getFriends()) {
                             grp.add(friend.getName());
                         }
                         listDataChild.put(listDataHeader.get(i), grp);
+
                         i++;
                     }
                 }
@@ -95,13 +103,11 @@ public class GroupsFragment extends Fragment {
                 }
             }
         });
-
-        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
-
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos);
     }
 
-    public void setAdapter(){
-        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild);
+    public void setAdapter() {
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos);
         groupList.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
