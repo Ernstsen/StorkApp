@@ -24,8 +24,8 @@ import stork.dk.storkapp.communicationObjects.CommunicationErrorHandling;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.GroupsResponse;
-import stork.dk.storkapp.Adapter.Friend;
-import stork.dk.storkapp.Adapter.Group;
+import stork.dk.storkapp.adapter.Friend;
+import stork.dk.storkapp.adapter.Group;
 
 
 /**

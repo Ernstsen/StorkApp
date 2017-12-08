@@ -3,7 +3,7 @@ package stork.dk.storkapp.communicationObjects;
 import java.io.Serializable;
 import java.util.List;
 
-import stork.dk.storkapp.Adapter.Group;
+import stork.dk.storkapp.adapter.Group;
 
 /**
  * @author Johannes, Morten

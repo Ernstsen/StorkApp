@@ -1,4 +1,4 @@
-package stork.dk.storkapp.Adapter;
+package stork.dk.storkapp.adapter;
 
 import java.io.Serializable;
 

@@ -1,4 +1,4 @@
-package stork.dk.storkapp.Adapter;
+package stork.dk.storkapp.adapter;
 
 import android.support.annotation.NonNull;
 

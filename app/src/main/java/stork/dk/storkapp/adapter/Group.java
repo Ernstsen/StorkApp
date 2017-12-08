@@ -1,4 +1,4 @@
-package stork.dk.storkapp.Adapter;
+package stork.dk.storkapp.adapter;
 
 import android.support.annotation.NonNull;
 
@@ -13,12 +13,22 @@ public class Group implements Traceable, Serializable, Comparable {
     private String name;
     private List<Friend> friends;
     private int owner;
+    private int active = 0;
 
-    public Group(int id, String name, List<Friend> friends, int owner) {
+    public Group(int id, String name, List<Friend> friends, int owner, int active) {
         this.id = id;
         this.name = name;
         this.friends = friends;
         this.owner = owner;
+        this.active = active;
+    }
+
+    public Group(String name, List<Friend> friends) {
+        this.id = 0;
+        this.name = name;
+        this.friends = friends;
+        this.owner = 0;
+        this.active = 1;
     }
 
     public int getId() {
@@ -51,6 +61,14 @@ public class Group implements Traceable, Serializable, Comparable {
 
     public void setOwner( int owner) {
         this.owner = owner;
+    }
+
+    public int getActive() {
+        return active;
+    }
+
+    public void setActive(int active) {
+        this.active = active;
     }
 
     //to display object as a string in spinner

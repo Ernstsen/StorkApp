@@ -50,9 +50,9 @@ import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.GroupsResponse;
 import stork.dk.storkapp.communicationObjects.UpdateLocationRequest;
-import stork.dk.storkapp.Adapter.Friend;
-import stork.dk.storkapp.Adapter.Group;
-import stork.dk.storkapp.Adapter.Traceable;
+import stork.dk.storkapp.adapter.Friend;
+import stork.dk.storkapp.adapter.Group;
+import stork.dk.storkapp.adapter.Traceable;
 import stork.dk.storkapp.location.StandardLocationSource;
 import stork.dk.storkapp.utils.TimeManagement;
 
@@ -308,7 +308,7 @@ public class MapOverviewFragment extends Fragment {
             allFriends.addAll(group.getFriends());
         }
 
-        Group groupContainingAllFriends = new Group(0, "Show all", new ArrayList<Friend>(allFriends), 0);
+        Group groupContainingAllFriends = new Group("Show all", new ArrayList<Friend>(allFriends));
         spinnerItems.add(groupContainingAllFriends);
 
         for (Group group : groups) {

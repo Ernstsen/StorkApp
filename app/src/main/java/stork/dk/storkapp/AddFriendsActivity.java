@@ -28,8 +28,8 @@ import stork.dk.storkapp.communicationObjects.Constants;
 import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.PublicUserObject;
 import stork.dk.storkapp.communicationObjects.UsersResponse;
-import stork.dk.storkapp.Adapter.PublicUserObjectWithCheckbox;
-import stork.dk.storkapp.Adapter.SearchableAdapterAddFriends;
+import stork.dk.storkapp.adapter.PublicUserObjectWithCheckbox;
+import stork.dk.storkapp.adapter.SearchableAdapterAddFriends;
 
 /**
  * @author Johannes, Mathias, Morten
