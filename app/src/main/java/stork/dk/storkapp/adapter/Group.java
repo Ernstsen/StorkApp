@@ -13,7 +13,7 @@ public class Group implements Traceable, Serializable, Comparable {
     private String name;
     private List<Friend> friends;
     private int owner;
-    private int active = 0;
+    private int active = 1;
 
     public Group(int id, String name, List<Friend> friends, int owner, int active) {
         this.id = id;
