@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
@@ -172,7 +173,7 @@ public class FriendsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
-                    CommunicationErrorHandling.handle403(getActivity());
+                    //CommunicationErrorHandling.handle403(getActivity());
                 } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
                 } else {
@@ -277,27 +278,33 @@ public class FriendsFragment extends Fragment {
                         req.setSessionId(sharedPref.getString(Constants.CURRENT_SESSION_KEY, null));
                         req.setUserId(sharedPref.getInt(Constants.CURRENT_USER_KEY, 0));
                         req.setAdd(selectedItems);
-                        req.setName(input.getText().toString());
+                        if(input.getText().toString().equals("") && getView() != null) {
+                            Snackbar.make(rootView, "Group name can't be empty", Snackbar.LENGTH_LONG).show();
+                        }
+                        else {
+                            req.setName(input.getText().toString());
 
-                        CommunicationsHandler.changeGroup(getFriendsFragmentActivity(), req, new AsyncHttpResponseHandler() {
-                            @Override
-                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                                if (statusCode == 201) {
-                                    Toast.makeText(getFriendsFragmentActivity(), "Group created!", Toast.LENGTH_LONG).show();
-                                } else {
-                                    Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                            CommunicationsHandler.changeGroup(getFriendsFragmentActivity(), req, new AsyncHttpResponseHandler() {
+                                @Override
+                                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                    if (statusCode == 201) {
+                                        Toast.makeText(getFriendsFragmentActivity(), "Group created!", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                                    }
                                 }
-                            }
 
-                            @Override
-                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                                if (statusCode == 403) {
-                                    CommunicationErrorHandling.handle403(getFriendsFragmentActivity());
-                                } else {
-                                    Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                                @Override
+                                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                                    if (statusCode == 403) {
+                                        CommunicationErrorHandling.handle403(getFriendsFragmentActivity());
+                                    } else {
+                                        Toast.makeText(getFriendsFragmentActivity(), "Code: " + statusCode, Toast.LENGTH_LONG).show();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+
                     }
                 })
                 .show();

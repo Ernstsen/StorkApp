@@ -1,6 +1,7 @@
 package stork.dk.storkapp.communicationObjects;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpClient;
@@ -108,6 +109,7 @@ public class CommunicationsHandler {
     }
     public static void changeGroup(Context context, ChangeGroupRequest req, ResponseHandlerInterface responseHandler){
         String payload = gson.toJson(req);
+        Log.d("LOG json:",payload);
         try {
             post(context, BASE_URL + CHANGE_GROUP_URL, payload, responseHandler);
         } catch (UnsupportedEncodingException e) {

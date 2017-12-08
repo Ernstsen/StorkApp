@@ -12,14 +12,25 @@
         android:id="@+id/lblListHeader"
         android:layout_width="0dp"
         android:layout_height="23dp"
-        android:layout_marginBottom="0dp"
-        android:layout_marginEnd="25dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="2dp"
         android:paddingLeft="25dp"
         android:textSize="17dip"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/headerSwitch"
+        app:layout_constraintEnd_toStartOf="@+id/editGroup"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/editGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="19dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="4dp"
+        android:drawableStart="@drawable/edit_icon"
+        app:layout_constraintEnd_toStartOf="@+id/headerSwitch"
+        app:layout_constraintStart_toEndOf="@+id/lblListHeader"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Switch
