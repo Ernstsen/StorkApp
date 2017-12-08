@@ -222,14 +222,14 @@ public class FriendsFragment extends Fragment {
 
     public void showDeleteButton() {
         removeFriends.setVisibility(View.VISIBLE);
-        addFriend.setVisibility(View.INVISIBLE);
+        addFriend.setVisibility(View.GONE);
         createGroup.setVisibility(View.VISIBLE);
     }
 
     public void hideDeleteButton() {
-        removeFriends.setVisibility(View.INVISIBLE);
+        removeFriends.setVisibility(View.GONE);
         addFriend.setVisibility(View.VISIBLE);
-        createGroup.setVisibility(View.INVISIBLE);
+        createGroup.setVisibility(View.GONE);
     }
 
     public void searchFieldInit() {
