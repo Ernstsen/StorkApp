@@ -391,7 +391,7 @@ public class MapOverviewFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
-                    CommunicationErrorHandling.handle403(getActivity());
+                    //CommunicationErrorHandling.handle403(getActivity());
                 }
             }
         });

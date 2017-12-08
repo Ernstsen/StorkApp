@@ -1,5 +1,6 @@
 package stork.dk.storkapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -34,6 +35,7 @@ public class GroupsFragment extends Fragment {
     private View rootView;
     private HashMap<String, List<String>> listDataChild;
     private HashMap<Integer, Integer> groupsIdAndPos;
+    private List<List> groupsFromResp;
     private ArrayList<String> listDataHeader;
     private ExpandableListAdapter adapter;
     private String sessionId;
@@ -53,6 +55,7 @@ public class GroupsFragment extends Fragment {
         listDataHeader = new ArrayList<>();
         listDataChild = new HashMap<>();
         groupList = rootView.findViewById(R.id.groupList);
+        groupsFromResp = new ArrayList<>();
 
         return rootView;
     }
@@ -75,20 +78,26 @@ public class GroupsFragment extends Fragment {
                 GroupsResponse resp = new Gson().fromJson(new String(responseBody), GroupsResponse.class);
                 int i = 0;
                 Collections.sort(resp.getGroups());
-                if(listDataHeader.size() != resp.getGroups().size()) {
-                    for (Group group : resp.getGroups()) {
-                        listDataHeader.add(group.getName());
-                        groupsIdAndPos.put(listDataHeader.indexOf(group.getName()), group.getId());
-                        if (group.getOwner() == userId) {
-                            //if owner, do something
-                        }
-                        List<String> grp = new ArrayList<>();
-                        for (Friend friend : group.getFriends()) {
-                            grp.add(friend.getName());
-                        }
-                        listDataChild.put(listDataHeader.get(i), grp);
+                groupsFromResp.clear();
+                groupsFromResp.add(resp.getGroups());
 
-                        i++;
+                if(listDataHeader.size() != resp.getGroups().size()) {
+                    listDataHeader.clear();
+                    for (Group group : resp.getGroups()) {
+                        if(!group.getFriends().isEmpty() && !group.getName().equals("")) {
+                            listDataHeader.add(group.getName());
+                            groupsIdAndPos.put(listDataHeader.indexOf(group.getName()), group.getId());
+                            if (group.getOwner() == userId) {
+                                //if owner, set editGroup visible
+                            }
+                            List<String> grp = new ArrayList<>();
+                            for (Friend friend : group.getFriends()) {
+                                grp.add(friend.getName());
+                            }
+                            listDataChild.put(listDataHeader.get(i), grp);
+
+                            i++;
+                        }
                     }
                 }
                 setAdapter();
@@ -101,14 +110,21 @@ public class GroupsFragment extends Fragment {
                 }
             }
         });
-        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos);
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos, groupsFromResp);
     }
 
     public void setAdapter() {
-        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos);
+        adapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild, groupsIdAndPos, groupsFromResp);
         groupList.setAdapter(adapter);
         adapter.notifyDataSetChanged();
     }
+
+    public void editGroupIntent(int groupId, int position){
+        Intent editGroup = new Intent(getActivity(), EditGroupActivity.class);
+        editGroup.putExtra("group", "GROUP OBJECT HERE");
+        startActivity(editGroup);
+    }
+
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
