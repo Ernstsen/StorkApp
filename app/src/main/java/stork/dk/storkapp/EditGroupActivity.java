@@ -33,6 +33,4 @@ public class EditGroupActivity extends AppCompatActivity {
         });
     }
 
-
-
 }

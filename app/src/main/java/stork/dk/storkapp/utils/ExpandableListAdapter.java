@@ -5,39 +5,29 @@ import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.graphics.Typeface;
 import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
-import stork.dk.storkapp.Adapter.Friend;
-import stork.dk.storkapp.Adapter.Group;
+import stork.dk.storkapp.adapter.Friend;
+import stork.dk.storkapp.adapter.Group;
 import stork.dk.storkapp.R;
 import stork.dk.storkapp.communicationObjects.ChangeGroupRequest;
 import stork.dk.storkapp.communicationObjects.CommunicationsHandler;
 import stork.dk.storkapp.communicationObjects.Constants;
-import stork.dk.storkapp.communicationObjects.FriendChangeRequest;
 import stork.dk.storkapp.communicationObjects.GroupChangeActivationRequest;
-import stork.dk.storkapp.communicationObjects.GroupsResponse;
-import stork.dk.storkapp.communicationObjects.UsersResponse;
 
 /**
  * @author Mathias
