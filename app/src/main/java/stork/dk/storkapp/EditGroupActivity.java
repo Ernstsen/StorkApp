@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import stork.dk.storkapp.Adapter.Group;
+import stork.dk.storkapp.adapter.Group;
 
 public class EditGroupActivity extends AppCompatActivity {
 
