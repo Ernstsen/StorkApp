@@ -1,9 +1,12 @@
 package stork.dk.storkapp.utils;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
 import android.graphics.Typeface;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -103,6 +106,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         sharedPref = context.getSharedPreferences(Constants.APP_SHARED_PREFS, Context.MODE_PRIVATE);
         sessionId = sharedPref.getString(Constants.CURRENT_SESSION_KEY, "");
         userId = sharedPref.getInt(Constants.CURRENT_USER_KEY, 0);
+        final Group group = (Group) groupsFromResp.get(0).get(groupPosition);
 
         String headerTitle = (String) getGroup(groupPosition);
         if (view == null) {
@@ -110,44 +114,62 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             view = inflater != null ? inflater.inflate(R.layout.expandable_listview_group, null) : null;
         }
 
-        TextView editGroupButton = (TextView) (view != null ? view.findViewById(R.id.editGroup) : null);
+        AppCompatImageView editGroupButton = (AppCompatImageView) (view != null ? view.findViewById(R.id.editGroup) : null);
+
         if (editGroupButton != null) {
-            editGroupButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Group group = (Group) groupsFromResp.get(0).get(groupPosition);
+            if (group.getOwner() != userId) {
+                editGroupButton.setVisibility(View.GONE);
+            } else {
+                editGroupButton.setVisibility(View.VISIBLE);
+                editGroupButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case DialogInterface.BUTTON_POSITIVE:
+                                        ChangeGroupRequest req = new ChangeGroupRequest();
+                                        req.setId(groupIdsAndPos.get(groupPosition));
+                                        req.setSessionId(sessionId);
+                                        req.setName(group.getName() + "1");
+                                        req.setUserId(userId);
+                                        List<Integer> friendsToRemove = new ArrayList<>();
+                                        for (Friend f : group.getFriends()) {
+                                            friendsToRemove.add(f.getId());
+                                        }
+                                        friendsToRemove.add(userId);
+                                        req.setRemove(friendsToRemove);
 
-                    ChangeGroupRequest req = new ChangeGroupRequest();
-                    req.setId(groupIdsAndPos.get(groupPosition));
-                    req.setSessionId(sessionId);
-                    req.setName(group.getName() + "1");
-                    req.setUserId(userId);
-                    List<Integer> friendsToRemove = new ArrayList<>();
-                    for (Friend f : group.getFriends()) {
-                        friendsToRemove.add(f.getId());
+
+                                        CommunicationsHandler.changeGroup(context, req, new AsyncHttpResponseHandler() {
+                                            @Override
+                                            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                                                Log.d("LOG statuscode", statusCode + "");
+                                            }
+
+                                            @Override
+                                            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                                                Log.d("LOG statuscode", statusCode + "");
+                                            }
+                                        });
+
+                                        notifyDataSetChanged();
+                                        dialog.dismiss();
+                                        break;
+
+                                    case DialogInterface.BUTTON_NEGATIVE:
+                                        dialog.dismiss();
+                                        break;
+                                }
+                            }
+                        };
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        builder.setMessage("Are you sure?").setPositiveButton("Yes",dialogClickListener).setNegativeButton("No",dialogClickListener).show();
+
                     }
-                    friendsToRemove.add(userId);
-                    req.setRemove(friendsToRemove);
-                    Log.d("LOG" + "id:", groupIdsAndPos.get(groupPosition).toString());
-                    Log.d("LOG" + "sessionId:", sessionId);
-                    Log.d("LOG" + "group name:", req.getName());
-                    Log.d("LOG" + "friends:", friendsToRemove.toString());
-                    Log.d("LOG" + "list:", req.getRemove().toString());
-
-
-                    CommunicationsHandler.changeGroup(context, req, new AsyncHttpResponseHandler() {
-                        @Override
-                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                            Log.d("LOG statuscode",statusCode + "");
-                        }
-
-                        @Override
-                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                            Log.d("LOG statuscode",statusCode + "");
-                        }
-                    });
-                }
-            });
+                });
+            }
         }
 
         TextView listHeader = (TextView) (view != null ? view.findViewById(R.id.lblListHeader) : null);
@@ -169,9 +191,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
         final Switch switchBtn = (Switch) (view != null ? view.findViewById(R.id.headerSwitch) : null);
         //TODO:
-        //If groups.getLocation != null
-        //switchBtn.setChecked()
         if (switchBtn != null) {
+            if (groupPosition == 1 || groupPosition == 4) {
+                switchBtn.setChecked(true);
+            } else {
+                switchBtn.setChecked(false);
+            }
 
             switchBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override

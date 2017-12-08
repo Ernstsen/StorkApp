@@ -2,7 +2,7 @@
     <string name="app_name">Stork™</string>
     <string name="tab_text_1">Map</string>
     <string name="tab_text_2">Friends</string>
-    <string name="tab_text_3">Group</string>
+    <string name="tab_text_3">Groups</string>
 
     <string name="login_tab">Login</string>
     <string name="register_tab">Sign Up</string>
