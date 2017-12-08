@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -201,6 +202,8 @@ public class MapOverviewFragment extends Fragment {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
+                } else if (statusCode == 500) {
+                    Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -392,6 +395,8 @@ public class MapOverviewFragment extends Fragment {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
                     //CommunicationErrorHandling.handle403(getActivity());
+                } else if (statusCode == 500) {
+                    Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                 }
             }
         });

@@ -176,9 +176,8 @@ public class FriendsFragment extends Fragment {
                     //CommunicationErrorHandling.handle403(getActivity());
                 } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "You don't seem to exist", Toast.LENGTH_LONG).show();
-                } else {
-                    //For Debug Purposes:
-                    //Toast.makeText(getActivity(), "RETURNED " + Integer.toString(statusCode), Toast.LENGTH_LONG).show();
+                } else if (statusCode == 500) {
+                    Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                 }
             }
         });

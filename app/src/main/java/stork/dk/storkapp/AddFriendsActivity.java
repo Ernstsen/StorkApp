@@ -88,6 +88,8 @@ public class AddFriendsActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
+                } else if (statusCode == 500) {
+                    Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -161,8 +163,10 @@ public class AddFriendsActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (statusCode == 403) {
                     CommunicationErrorHandling.handle403(getActivity());
-                } else if (statusCode == 404 || statusCode == 500) {
+                } else if (statusCode == 404) {
                     Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_SHORT).show();
+                } else if (statusCode == 500) {
+                    Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                 }
             }
         });

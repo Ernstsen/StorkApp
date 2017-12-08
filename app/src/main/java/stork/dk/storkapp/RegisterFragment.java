@@ -118,6 +118,8 @@ public class RegisterFragment extends Fragment {
                         CommunicationErrorHandling.handle403(getActivity());
                     } else if (statusCode == 404) {
                         Toast.makeText(getActivity(), "Something went wrong.", Toast.LENGTH_LONG).show();
+                    } else if (statusCode == 500) {
+                        Toast.makeText(getActivity(), "Error Connecting to server.", Toast.LENGTH_LONG).show();
                     }
                     clicked = false;
                 }
