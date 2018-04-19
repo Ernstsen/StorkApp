@@ -1,7 +1,15 @@
 # StortkApp
-Android application for the dIntDes Stork project
+## Collaborators:
+Johannes Ernstsen, Mathias Søby Jensen & Morten Erfurt Hansen
+## Intent
+This is a simple Android application  built for a project for the course Interactive Systems which is a part of Computer Science at The University of Aarhus.
 
-#RULES
+The application should be run on Android. It communicates with the server, which can be found
+[here](https://github.com/Bloodshaud/StorkServer)
+
+Be aware that the hardcoded URL that can be found is down atm, and probably wont be up again. 
+
+# REPO RULES
 * Remember commiting after EACH change as to maintain a good gitlog
     * Provide good and descriptive commit messages
 * Remember to update Trello board with new tasks as you go
